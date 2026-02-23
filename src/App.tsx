@@ -1,47 +1,54 @@
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Products from "./pages/Products";
-import ProductDetails from "./pages/ProductDetails";
-import DeliveryInformation from "./pages/DeliveryInformation";
-import Checkout from "./pages/Checkout";
-import Testimonials from "./pages/Testimonials";
-import Industries from "./pages/Industries";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import About from "./pages/About";
-import Contact from "./pages/Contact";
-import FAQ from "./pages/FAQ";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import RefundPolicy from "./pages/RefundPolicy";
-import Cart from "./pages/Cart";
-import TrackOrder from "./pages/TrackOrder";
-import Login from "./pages/auth/Login";
-import Signup from "./pages/auth/Signup";
 import ForgotPassword from "./pages/auth/ForgotPassword";
-import VerificationCode from "./pages/auth/VerificationCode";
+import Login from "./pages/auth/Login";
 import ResetPassword from "./pages/auth/ResetPassword";
+import Signup from "./pages/auth/Signup";
+import VerificationCode from "./pages/auth/VerificationCode";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Contact from "./pages/Contact";
+import DeliveryInformation from "./pages/DeliveryInformation";
+import FAQ from "./pages/FAQ";
+import Home from "./pages/Home";
+import Industries from "./pages/Industries";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import ProductDetails from "./pages/ProductDetails";
+import Products from "./pages/Products";
+import RefundPolicy from "./pages/RefundPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import Testimonials from "./pages/Testimonials";
+import TrackOrder from "./pages/TrackOrder";
 
 // Admin Pages
+import AdminAddProduct from "./pages/admin/AddProduct";
 import AdminDashboard from "./pages/admin/Dashboard";
-import AdminOrders from "./pages/admin/Orders";
+import AdminDeliveryManagement from "./pages/admin/DeliveryManagement";
 import AdminOrderDetails from "./pages/admin/OrderDetails";
+import AdminOrders from "./pages/admin/Orders";
 import AdminPayments from "./pages/admin/Payments";
 import AdminProducts from "./pages/admin/Products";
-import AdminAddProduct from "./pages/admin/AddProduct";
-import AdminQuotes from "./pages/admin/Quotes";
-import AdminDeliveryManagement from "./pages/admin/DeliveryManagement";
 import AdminProfile from "./pages/admin/Profile";
+import AdminQuotes from "./pages/admin/Quotes";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+     retry: false,
+    retryOnMount: false,          
+    refetchOnWindowFocus: false,   
+    refetchOnReconnect: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
       <Sonner />
       <BrowserRouter>
         <Routes>
