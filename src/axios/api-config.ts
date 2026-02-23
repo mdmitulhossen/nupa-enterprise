@@ -7,6 +7,14 @@ export const api = axios.create({
   },
 });
 
+
+export interface IApiResponse<T = any> {
+  status: boolean; // success flag returned by some APIs
+  message: string;
+  data?: T;
+  result?: T; // some endpoints use result instead of data
+}
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
