@@ -8,7 +8,7 @@ export async function getAxios<T>(endpoint: string, params?: any, signal?: any) 
   const response = await api.get<T>(`${endpoint}`, {
     signal,
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `${token}`,
     },
     params,
   });
@@ -19,7 +19,7 @@ export async function postAxios<RT, BT>(endpoint: string, arg: BT, timeout?: num
   const token = localStorage.getItem(StorageKeys.token);
   const response = await api.post<RT>(`${endpoint}`, arg, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `${token}`,
     },
     timeout: timeout,
   });
@@ -31,7 +31,7 @@ export async function putAxios<RT, BT>(endpoint: string, arg: BT) {
   const token = localStorage.getItem(StorageKeys.token);
   const response = await api.put<RT>(`${endpoint}`, arg, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `${token}`,
     },
   });
 
@@ -42,7 +42,7 @@ export async function deleteAxios<RT>(endpoint: string, params?: any, timeout?: 
   const token = localStorage.getItem(StorageKeys.token);
   const response = await api.delete<RT>(`${endpoint}`, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `${token}`,
     },
     params,
     timeout,
@@ -55,7 +55,7 @@ export async function patchAxios<RT, BT>(endpoint: string, arg: BT) {
   const token = localStorage.getItem(StorageKeys.token);
   const response = await api.patch<RT>(`${endpoint}`, arg, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `${token}`,
     },
   });
 

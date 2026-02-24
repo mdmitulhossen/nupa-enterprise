@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
-  headers: {
-    'ngrok-skip-browser-warning': 'true',
-  },
+//   headers: {
+//     'ngrok-skip-browser-warning': 'true',
+//   },
 });
 
 

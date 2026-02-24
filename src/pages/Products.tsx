@@ -1,21 +1,23 @@
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
-import Breadcrumb from "@/components/shared/Breadcrumb";
-import PageBanner from "@/components/shared/PageBanner";
-import CTASection from "@/components/shared/CTASection";
-import ProductCard from "@/components/products/ProductCard";
 import FilterSidebar from "@/components/products/FilterSidebar";
+import ProductCard from "@/components/products/ProductCard";
+import Breadcrumb from "@/components/shared/Breadcrumb";
+import CTASection from "@/components/shared/CTASection";
+import PageBanner from "@/components/shared/PageBanner";
 import { Badge } from "@/components/ui/badge";
 import {
   demoProducts,
+  filterTags,
+  productAvailability,
   productCategories,
   productIndustries,
-  productAvailability,
-  filterTags,
 } from "@/data/products";
+import { useTitle } from '@/hooks/useTitle';
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 const Products = () => {
+  useTitle("NUPA Enterprise - Products");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedIndustry, setSelectedIndustry] = useState("supershop");
   const [selectedAvailability, setSelectedAvailability] = useState("instock");

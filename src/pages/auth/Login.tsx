@@ -1,13 +1,18 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import AuthLayout from "@/components/auth/AuthLayout";
-import AuthInput from "@/components/auth/AuthInput";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AuthButton from "@/components/auth/AuthButton";
+import AuthInput from "@/components/auth/AuthInput";
+import AuthLayout from "@/components/auth/AuthLayout";
 import SocialButtons from "@/components/auth/SocialButtons";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useLogin } from "@/services/authService";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const loginMutation = useLogin();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -42,8 +47,20 @@ const Login = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      console.log("Login:", formData);
-      // Demo: Navigate to home or dashboard
+      const fromPath = (location.state as any)?.from?.pathname;
+      loginMutation.mutate(
+        {
+          email: formData.email,
+          password: formData.password,
+        },
+        {
+          onSuccess: (data: any) => {
+            const role = data?.data?.user?.role;
+            const target = fromPath || (role === 'ADMIN' ? '/admin' : '/');
+            navigate(target, { replace: true });
+          },
+        }
+      );
     }
   };
 
@@ -92,7 +109,7 @@ const Login = () => {
             </div>
           </div>
 
-          <AuthButton type="submit">Log In</AuthButton>
+          <AuthButton type="submit" disabled={loginMutation.isPending}>Log In</AuthButton>
 
           <div className="flex items-start gap-2">
             <Checkbox

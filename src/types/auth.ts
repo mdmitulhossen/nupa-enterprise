@@ -11,6 +11,13 @@ export interface ILoginResponse {
   data: {
     accessToken: string;
     refreshToken: string;
+    user:{
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        role: string;
+    }
   };
 }
 

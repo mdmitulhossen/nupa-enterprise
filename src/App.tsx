@@ -1,7 +1,7 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import About from "./pages/About";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Login from "./pages/auth/Login";
@@ -25,6 +25,7 @@ import Testimonials from "./pages/Testimonials";
 import TrackOrder from "./pages/TrackOrder";
 
 // Admin Pages
+import { RequireAdmin } from "./components/auth/RequireAdmin";
 import AdminAddProduct from "./pages/admin/AddProduct";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminDeliveryManagement from "./pages/admin/DeliveryManagement";
@@ -38,10 +39,10 @@ import AdminQuotes from "./pages/admin/Quotes";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-     retry: false,
-    retryOnMount: false,          
-    refetchOnWindowFocus: false,   
-    refetchOnReconnect: false,
+      retry: false,
+      retryOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   },
 });
@@ -74,16 +75,18 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Admin Routes */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/orders" element={<AdminOrders />} />
-          <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
-          <Route path="/admin/payments" element={<AdminPayments />} />
-          <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/products/new" element={<AdminAddProduct />} />
-          <Route path="/admin/products/:id/edit" element={<AdminAddProduct />} />
-          <Route path="/admin/quotes" element={<AdminQuotes />} />
-          <Route path="/admin/delivery" element={<AdminDeliveryManagement />} />
-          <Route path="/admin/profile" element={<AdminProfile />} />
+          <Route element={<RequireAdmin><Outlet /></RequireAdmin>}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
+            <Route path="/admin/payments" element={<AdminPayments />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/products/new" element={<AdminAddProduct />} />
+            <Route path="/admin/products/:id/edit" element={<AdminAddProduct />} />
+            <Route path="/admin/quotes" element={<AdminQuotes />} />
+            <Route path="/admin/delivery" element={<AdminDeliveryManagement />} />
+            <Route path="/admin/profile" element={<AdminProfile />} />
+          </Route>
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

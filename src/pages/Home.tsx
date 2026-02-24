@@ -1,5 +1,6 @@
 import { Search, Shield, Truck, Headphones, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTitle } from '@/hooks/useTitle';
 import MainLayout from "@/components/layout/MainLayout";
 import SectionHeader from "@/components/shared/SectionHeader";
 import CTASection from "@/components/shared/CTASection";
@@ -37,6 +38,7 @@ const features = [
 ];
 
 const Home = () => {
+  useTitle("NUPA Enterprise - Home");
   return (
     <MainLayout>
       {/* Hero Section */}
