@@ -1,17 +1,18 @@
-import { Link, useLocation } from "react-router-dom";
+import logo from "@/assets/logo.svg";
+import useLogout from "@/hooks/useLogout";
 import {
   LayoutDashboard,
-  Package,
-  Wallet,
-  ShoppingBag,
+  LogOut,
   MessageSquareQuote,
+  Package,
   PenTool,
+  Settings,
+  ShoppingBag,
   Truck,
   User,
-  Settings,
-  LogOut,
+  Wallet,
 } from "lucide-react";
-import logo from "@/assets/logo.svg";
+import { Link, useLocation } from "react-router-dom";
 
 const mainNavItems = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
@@ -30,6 +31,12 @@ const otherNavItems = [
 
 const AdminSidebar = () => {
   const location = useLocation();
+
+  const logout = useLogout();
+
+  const handleLogout = () => {
+    logout({ redirectTo: '/login', replace: true, showToast: true });
+  };
 
   const isActive = (path: string) => {
     if (path === "/admin") {
@@ -59,11 +66,10 @@ const AdminSidebar = () => {
             <li key={item.path}>
               <Link
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive(item.path)
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground hover:bg-muted"
-                }`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive(item.path)
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground hover:bg-muted"
+                  }`}
               >
                 <item.icon className="w-5 h-5" />
                 {item.label}
@@ -82,11 +88,10 @@ const AdminSidebar = () => {
             <li key={item.path}>
               <Link
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive(item.path)
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground hover:bg-muted"
-                }`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive(item.path)
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground hover:bg-muted"
+                  }`}
               >
                 <item.icon className="w-5 h-5" />
                 {item.label}
@@ -107,7 +112,7 @@ const AdminSidebar = () => {
             <p className="text-xs text-muted-foreground">Admin</p>
           </div>
         </div>
-        <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full">
+        <button onClick={handleLogout} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full">
           <LogOut className="w-4 h-4" />
           Log Out
         </button>
