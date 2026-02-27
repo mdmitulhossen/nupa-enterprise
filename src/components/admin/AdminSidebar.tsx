@@ -1,6 +1,7 @@
 import logo from "@/assets/logo.svg";
 import useLogout from "@/hooks/useLogout";
 import {
+  Grid2X2,
   LayoutDashboard,
   LogOut,
   MessageSquareQuote,
@@ -16,9 +17,10 @@ import { Link, useLocation } from "react-router-dom";
 
 const mainNavItems = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
+  { label: "Categories", path: "/admin/categories", icon: Grid2X2 },
+  { label: "Products", path: "/admin/products", icon: ShoppingBag },
   { label: "Orders", path: "/admin/orders", icon: Package },
   { label: "Payments", path: "/admin/payments", icon: Wallet },
-  { label: "Products", path: "/admin/products", icon: ShoppingBag },
   { label: "Quotes", path: "/admin/quotes", icon: MessageSquareQuote },
   { label: "CMS", path: "/admin/cms", icon: PenTool },
   { label: "Delivery Management", path: "/admin/delivery", icon: Truck },

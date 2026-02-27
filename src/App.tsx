@@ -27,6 +27,10 @@ import TrackOrder from "./pages/TrackOrder";
 // Admin Pages
 import { RequireAdmin } from "./components/auth/RequireAdmin";
 import AdminAddProduct from "./pages/admin/AddProduct";
+
+import AdminCategories from "./pages/admin/Categories";
+
+
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminDeliveryManagement from "./pages/admin/DeliveryManagement";
 import AdminOrderDetails from "./pages/admin/OrderDetails";
@@ -80,6 +84,9 @@ const App = () => (
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
             <Route path="/admin/payments" element={<AdminPayments />} />
+
+            <Route path="/admin/categories" element={<AdminCategories />} />
+
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/products/new" element={<AdminAddProduct />} />
             <Route path="/admin/products/:id/edit" element={<AdminAddProduct />} />

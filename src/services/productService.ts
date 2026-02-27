@@ -103,7 +103,7 @@ export function useCreateProduct() {
             if ((err as any)?.response?.status === 401) {
                 logoutFunc(msg);
             }
-            toast.error(msg);
+            // toast.error(msg);
             return Promise.reject(err);
         },
         onSettled: () => {
@@ -145,7 +145,7 @@ export function useUpdateProduct() {
             if ((err as any)?.response?.status === 401) {
                 logoutFunc(msg);
             }
-            toast.error(msg);
+            // toast.error(msg);
             return Promise.reject(err);
         },
         onSettled: () => {

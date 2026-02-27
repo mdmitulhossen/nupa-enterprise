@@ -1,4 +1,3 @@
-import { Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -6,6 +5,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { debounce } from "lodash";
+import { Search } from "lucide-react";
+import { useCallback, useMemo } from "react";
 
 interface FilterOption {
   value: string;
@@ -20,6 +22,7 @@ interface SearchFilterProps {
   filterValue?: string;
   onFilterChange?: (value: string) => void;
   filterPlaceholder?: string;
+  debounceMs?: number;
 }
 
 const SearchFilter = ({
@@ -30,7 +33,21 @@ const SearchFilter = ({
   filterValue,
   onFilterChange,
   filterPlaceholder = "All Status",
+  debounceMs = 300,
 }: SearchFilterProps) => {
+  const debouncedSearch = useMemo(
+    () => debounce(onSearchChange, debounceMs),
+    [onSearchChange, debounceMs]
+  );
+
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      debouncedSearch(newValue);
+    },
+    [debouncedSearch]
+  );
+
   return (
     <div className="bg-background rounded-xl border border-border p-4 mb-4">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -40,8 +57,8 @@ const SearchFilter = ({
           <input
             type="text"
             placeholder={searchPlaceholder}
-            value={searchValue}
-            onChange={(e) => onSearchChange(e.target.value)}
+            defaultValue={searchValue}
+            onChange={handleSearchChange}
             className="bg-transparent border-none outline-none text-sm flex-1 placeholder:text-muted-foreground"
           />
         </div>
