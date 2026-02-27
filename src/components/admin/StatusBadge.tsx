@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 
-type StatusType = 
-  | "out_for_delivery" 
-  | "processing" 
-  | "delivered" 
-  | "ready_for_dispatch" 
+type StatusType =
+  | "out_for_delivery"
+  | "processing"
+  | "delivered"
+  | "ready_for_dispatch"
   | "order_confirmed"
   | "payment_received"
   | "pending"
@@ -19,7 +19,13 @@ type StatusType =
   | "in_review"
   | "quoted"
   | "approved"
-  | "converted";
+  | "converted"
+  // API uppercase product statuses
+  | "IN_STOCK"
+  | "OUT_OF_STOCK"
+  | "UPCOMING"
+  | "BUY_ONLINE"
+  | "QUOTATION";
 
 interface StatusBadgeProps {
   status: StatusType;
@@ -103,10 +109,38 @@ const statusConfig: Record<StatusType, { label: string; className: string }> = {
     label: "Converted to Order",
     className: "bg-primary/10 text-primary",
   },
+  IN_STOCK: {
+    label: "In Stock",
+    className: "bg-green-100 text-green-600",
+  },
+  OUT_OF_STOCK: {
+    label: "Out of Stock",
+    className: "bg-red-100 text-red-600",
+  },
+  UPCOMING: {
+    label: "Upcoming",
+    className: "bg-yellow-100 text-yellow-600",
+  },
+  BUY_ONLINE: {
+    label: "Buy Online",
+    className: "bg-blue-100 text-blue-600",
+  },
+  QUOTATION: {
+    label: "Quotation",
+    className: "bg-purple-100 text-purple-600",
+  },
 };
 
 const StatusBadge = ({ status, className }: StatusBadgeProps) => {
   const config = statusConfig[status];
+
+  if (!config) {
+    return (
+      <span className={cn("inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600", className)}>
+        {status}
+      </span>
+    );
+  }
 
   return (
     <span

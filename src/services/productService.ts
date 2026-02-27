@@ -33,7 +33,7 @@ export function useFetchProducts(params: ProductListParams = {}, enabled: boolea
                     logoutFunc(msg);
                     return await Promise.reject(new Error(msg));
                 }
-                toast.error(msg);
+                // toast.error(msg);
                 return await Promise.reject(new Error(msg));
             } finally {
                 setLoading(false);
@@ -63,7 +63,7 @@ export function useFetchProduct(id: string | undefined, enabled: boolean = true)
                     logoutFunc(msg);
                     return await Promise.reject(new Error(msg));
                 }
-                toast.error(msg);
+                // toast.error(msg);
                 return await Promise.reject(new Error(msg));
             } finally {
                 setLoading(false);

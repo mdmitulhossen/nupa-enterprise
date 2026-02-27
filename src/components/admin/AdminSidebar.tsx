@@ -18,6 +18,7 @@ import { Link, useLocation } from "react-router-dom";
 const mainNavItems = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { label: "Categories", path: "/admin/categories", icon: Grid2X2 },
+  { label: "Industries", path: "/admin/industries", icon: Grid2X2 },
   { label: "Products", path: "/admin/products", icon: ShoppingBag },
   { label: "Orders", path: "/admin/orders", icon: Package },
   { label: "Payments", path: "/admin/payments", icon: Wallet },

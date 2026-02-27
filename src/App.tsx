@@ -29,6 +29,7 @@ import { RequireAdmin } from "./components/auth/RequireAdmin";
 import AdminAddProduct from "./pages/admin/AddProduct";
 
 import AdminCategories from "./pages/admin/Categories";
+import AdminIndustries from "./pages/admin/Industries";
 
 
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -86,6 +87,7 @@ const App = () => (
             <Route path="/admin/payments" element={<AdminPayments />} />
 
             <Route path="/admin/categories" element={<AdminCategories />} />
+            <Route path="/admin/industries" element={<AdminIndustries />} />
 
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/products/new" element={<AdminAddProduct />} />

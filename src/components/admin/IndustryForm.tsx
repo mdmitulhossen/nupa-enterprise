@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 
-interface CategoryFormProps {
+interface IndustryFormProps {
     initialName?: string;
     initialImage?: string;
     onSubmit: (name: string, image: File | null) => void;
@@ -13,7 +13,7 @@ interface CategoryFormProps {
     subtitle: string;
 }
 
-const CategoryForm = ({
+const IndustryForm = ({
     initialName = "",
     initialImage,
     onSubmit,
@@ -21,7 +21,7 @@ const CategoryForm = ({
     submitLabel,
     title,
     subtitle,
-}: CategoryFormProps) => {
+}: IndustryFormProps) => {
     const [name, setName] = useState(initialName);
     const [image, setImage] = useState<File | null>(null);
 
@@ -36,26 +36,26 @@ const CategoryForm = ({
     };
 
     return (
-        <div className="w-full">
+        <div className="w-full mx-auto">
             <div className="mb-6">
                 <h1 className="text-2xl font-bold">{title}</h1>
                 <p className="text-muted-foreground">{subtitle}</p>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-6 w-full">
+            <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <Label htmlFor="name" >Category Name</Label>
+                    <Label htmlFor="name">Industry Name</Label>
                     <Input
                         id="name"
                         value={name}
-                        className="w-full mt-2"
+                        className="mt-2"
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Enter category name"
+                        placeholder="Enter industry name"
                         required
                     />
                 </div>
                 {/* <div>
                     <Label htmlFor="image">
-                        Category Image {initialImage ? "(leave empty to keep current)" : ""}
+                        Industry Image {initialImage ? "(leave empty to keep current)" : ""}
                     </Label>
                     <Input
                         id="image"
@@ -80,4 +80,4 @@ const CategoryForm = ({
     );
 };
 
-export default CategoryForm;
+export default IndustryForm;
