@@ -325,6 +325,15 @@ const AddProduct = () => {
                       />
                       <span className="text-sm">Quotation</span>
                     </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="ALL"
+                        {...register("productType")}
+                        className="w-4 h-4 accent-primary"
+                      />
+                      <span className="text-sm">All</span>
+                    </label>
                   </div>
                 </div>
 
