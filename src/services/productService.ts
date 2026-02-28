@@ -6,6 +6,7 @@ import {
     PaginatedResponse,
     Product,
     ProductListParams,
+    SearchableProduct,
     SingleResponse,
 } from '@/types/product';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -44,6 +45,30 @@ export function useFetchProducts(params: ProductListParams = {}, enabled: boolea
     });
 }
 
+export function useFetchSearchAbleProducts() {
+    const setLoading = useUiStore((s) => s.setLoading);
+
+    return useQuery<PaginatedResponse<SearchableProduct>, unknown>({
+        queryFn: async ({ signal }) => {
+            try {
+                setLoading(true);
+                const response = await getAxios<PaginatedResponse<Product>>(`${PRODUCTS_ENDPOINT}/searchable`, signal);
+                return formatResponse(response);
+            } catch (error: unknown) {
+                const msg = extractErrorMsg(error);
+                if ((error as any)?.response?.status === 401) {
+                    logoutFunc(msg);
+                    return await Promise.reject(new Error(msg));
+                }
+                // toast.error(msg);
+                return await Promise.reject(new Error(msg));
+            } finally {
+                setLoading(false);
+            }
+        },
+        queryKey: ['products', 'searchable'],
+    });
+}
 /**
  * Hook to fetch a single product by id.
  */
@@ -194,3 +219,5 @@ export function useDeleteProduct() {
         },
     });
 }
+
+

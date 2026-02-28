@@ -33,6 +33,12 @@ export interface Rating {
     total: number;
 }
 
+export interface SearchableProduct {
+    id: string;
+    p_id?: string;
+    name: string;
+}
+
 export interface Product {
     id: string;
     p_id?: string;
@@ -56,6 +62,7 @@ export interface Product {
     category?: CategorySummary;
     industry?: IndustrySummary;
     rating?: Rating;
+    relatedProducts?: Product[];
 }
 
 export interface Meta {

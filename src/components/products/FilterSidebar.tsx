@@ -1,5 +1,5 @@
-import { Search } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { Search } from "lucide-react";
 
 interface FilterCategory {
   id: string;
@@ -11,13 +11,13 @@ interface FilterSidebarProps {
   categories: FilterCategory[];
   industries: FilterCategory[];
   availability: FilterCategory[];
-  selectedCategory: string;
-  selectedIndustry: string;
+  selectedCategories: string[];
+  selectedIndustries: string[];
   selectedAvailability: string;
   priceRange: [number, number];
   maxPrice: number;
-  onCategoryChange: (id: string) => void;
-  onIndustryChange: (id: string) => void;
+  onCategoryChange: (ids: string[]) => void;
+  onIndustryChange: (ids: string[]) => void;
   onAvailabilityChange: (id: string) => void;
   onPriceRangeChange: (range: [number, number]) => void;
   searchQuery: string;
@@ -28,8 +28,8 @@ const FilterSidebar = ({
   categories,
   industries,
   availability,
-  selectedCategory,
-  selectedIndustry,
+  selectedCategories,
+  selectedIndustries,
   selectedAvailability,
   priceRange,
   maxPrice,
@@ -63,12 +63,17 @@ const FilterSidebar = ({
           {categories.map((cat) => (
             <li key={cat.id}>
               <button
-                onClick={() => onCategoryChange(cat.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                  selectedCategory === cat.id
-                    ? "bg-muted font-medium text-foreground"
-                    : "text-muted-foreground hover:bg-muted/50"
-                }`}
+                onClick={() => {
+                  if (selectedCategories.includes(cat.id)) {
+                    onCategoryChange(selectedCategories.filter(id => id !== cat.id));
+                  } else {
+                    onCategoryChange([...selectedCategories, cat.id]);
+                  }
+                }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${selectedCategories.includes(cat.id)
+                  ? "bg-muted font-medium text-foreground"
+                  : "text-muted-foreground hover:bg-muted/50"
+                  }`}
               >
                 {cat.name}
               </button>
@@ -84,12 +89,17 @@ const FilterSidebar = ({
           {industries.map((ind) => (
             <li key={ind.id}>
               <button
-                onClick={() => onIndustryChange(ind.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                  selectedIndustry === ind.id
-                    ? "bg-muted font-medium text-foreground"
-                    : "text-muted-foreground hover:bg-muted/50"
-                }`}
+                onClick={() => {
+                  if (selectedIndustries.includes(ind.id)) {
+                    onIndustryChange(selectedIndustries.filter(id => id !== ind.id));
+                  } else {
+                    onIndustryChange([...selectedIndustries, ind.id]);
+                  }
+                }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${selectedIndustries.includes(ind.id)
+                  ? "bg-muted font-medium text-foreground"
+                  : "text-muted-foreground hover:bg-muted/50"
+                  }`}
               >
                 {ind.name}
               </button>
@@ -105,12 +115,13 @@ const FilterSidebar = ({
           {availability.map((avail) => (
             <li key={avail.id}>
               <button
-                onClick={() => onAvailabilityChange(avail.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                  selectedAvailability === avail.id
-                    ? "bg-muted font-medium text-foreground"
-                    : "text-muted-foreground hover:bg-muted/50"
-                }`}
+                onClick={() => {
+                  onAvailabilityChange(selectedAvailability === avail.id ? '' : avail.id);
+                }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${selectedAvailability === avail.id
+                  ? "bg-muted font-medium text-foreground"
+                  : "text-muted-foreground hover:bg-muted/50"
+                  }`}
               >
                 {avail.name}
               </button>
