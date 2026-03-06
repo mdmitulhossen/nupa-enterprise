@@ -1,12 +1,11 @@
-import { Search, Shield, Truck, Headphones, CheckCircle } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useTitle } from '@/hooks/useTitle';
 import MainLayout from "@/components/layout/MainLayout";
-import SectionHeader from "@/components/shared/SectionHeader";
 import CTASection from "@/components/shared/CTASection";
-import ProductCard from "@/components/products/ProductCard";
+import SectionHeader from "@/components/shared/SectionHeader";
 import { Button } from "@/components/ui/button";
-import { demoProducts } from "@/data/products";
+// import { demoProducts } from "@/data/products";
+import { useTitle } from '@/hooks/useTitle';
+import { CheckCircle, Headphones, Search, Shield, Truck } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const categories = [
   { name: "Office Racks/Shelves", image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop", link: "/products?cat=office" },
@@ -216,7 +215,7 @@ const Home = () => {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 lg:py-24 bg-background">
+      {/* <section className="py-16 lg:py-24 bg-background">
         <div className="container mx-auto px-4">
           <SectionHeader
             title="Featured Products"
@@ -233,7 +232,7 @@ const Home = () => {
             </Button>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Why Nupa Enterprise */}
       <section className="py-16 lg:py-24 bg-muted">

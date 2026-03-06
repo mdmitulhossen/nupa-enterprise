@@ -118,3 +118,17 @@ export interface CreateProductPayload {
     isShowInSearch?: boolean;
     offer?: number;
 }
+
+
+export interface ShippingAddress {
+  fullName: string;
+  phone: string;
+  email: string;
+  addressLine1: string;
+  addressLine2: string;
+  district: string;
+  thana: string;
+  division: string;
+  postalCode: string;
+  deliveryNote: string;
+}

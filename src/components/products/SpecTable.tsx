@@ -1,4 +1,3 @@
-import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -8,14 +7,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Minus, Plus } from "lucide-react";
 
 export interface ProductSpec {
-  name: string;
-  depth: string;
-  width: string;
-  height: string;
-  price: number;
-  quantity: number;
+  name?: string;
+  depth?: number | string;
+  width?: number | string;
+  height?: number | string;
+  price?: number | string;
+  stock?: number | string;
+  sku?: string;
+  quantity?: number;
 }
 
 interface SpecTableProps {
@@ -33,6 +35,7 @@ const SpecTable = ({ specs, onQuantityChange }: SpecTableProps) => {
             <TableHead className="text-primary-foreground font-semibold text-center">Depth</TableHead>
             <TableHead className="text-primary-foreground font-semibold text-center">Width</TableHead>
             <TableHead className="text-primary-foreground font-semibold text-center">Height</TableHead>
+            <TableHead className="text-primary-foreground font-semibold text-center">Stock</TableHead>
             <TableHead className="text-primary-foreground font-semibold text-center">Price</TableHead>
             <TableHead className="text-primary-foreground font-semibold text-center">Quantity</TableHead>
           </TableRow>
@@ -44,6 +47,7 @@ const SpecTable = ({ specs, onQuantityChange }: SpecTableProps) => {
               <TableCell className="text-center text-sm">{spec.depth}</TableCell>
               <TableCell className="text-center text-sm">{spec.width}</TableCell>
               <TableCell className="text-center text-sm">{spec.height}</TableCell>
+              <TableCell className="text-center text-sm">{spec.stock}</TableCell>
               <TableCell className="text-center text-sm">{spec.price}</TableCell>
               <TableCell>
                 <div className="flex items-center justify-center gap-1">

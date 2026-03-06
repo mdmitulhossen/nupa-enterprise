@@ -1,6 +1,7 @@
 import logo from "@/assets/logo.svg";
 import { Button } from "@/components/ui/button";
 import useLogout from "@/hooks/useLogout";
+import { useCartStore } from "@/store/cartStore";
 import { useUserStore } from "@/store/userStore";
 import { Menu, Search, ShoppingCart, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -21,6 +22,8 @@ const Header = () => {
   const location = useLocation();
   const { user } = useUserStore();
   const profileRef = useRef<HTMLDivElement | null>(null);
+  const { totalItems } = useCartStore();
+  const cartCount = totalItems();
 
   const logout = useLogout();
 
@@ -35,9 +38,8 @@ const Header = () => {
 
   const handleLogout = () => {
     setProfileOpen(false);
-    logout({ redirectTo: '/login', replace: true, showToast: true });
+    logout({ redirectTo: "/login", replace: true, showToast: true });
   };
-
 
   const initials = user
     ? `${(user.name || "").charAt(0) || ""}`.toUpperCase()
@@ -58,8 +60,9 @@ const Header = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-primary ${location.pathname === link.path ? "text-primary" : "text-foreground"
-                  }`}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  location.pathname === link.path ? "text-primary" : "text-foreground"
+                }`}
               >
                 {link.label}
               </Link>
@@ -76,9 +79,17 @@ const Header = () => {
                 <Link to="/login">Login</Link>
               </Button>
             )}
-            <button className="p-2 hover:bg-muted rounded-lg transition-colors" aria-label="Cart">
+
+            {/* Cart Icon with badge */}
+            <Link to="/cart" className="relative p-2 hover:bg-muted rounded-lg transition-colors" aria-label="Cart">
               <ShoppingCart className="w-5 h-5" />
-            </button>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
+            </Link>
+
             <div className="hidden lg:flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
               <Search className="w-4 h-4 text-muted-foreground" />
               <input
@@ -87,6 +98,7 @@ const Header = () => {
                 className="bg-transparent border-none outline-none text-sm w-24"
               />
             </div>
+
             {/* Profile / Auth area */}
             {user ? (
               <div ref={profileRef} className="relative">
@@ -98,7 +110,6 @@ const Header = () => {
                 >
                   {initials || "U"}
                 </button>
-
                 {profileOpen && (
                   <div className="absolute right-0 mt-2 w-44 bg-card border border-border rounded-md shadow-md py-1 z-50">
                     <Link
@@ -125,6 +136,7 @@ const Header = () => {
                 )}
               </div>
             ) : null}
+
             <button
               className="lg:hidden p-2 hover:bg-muted rounded-lg transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -144,8 +156,9 @@ const Header = () => {
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:bg-muted ${location.pathname === link.path ? "text-primary bg-muted" : "text-foreground"
-                    }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:bg-muted ${
+                    location.pathname === link.path ? "text-primary bg-muted" : "text-foreground"
+                  }`}
                 >
                   {link.label}
                 </Link>

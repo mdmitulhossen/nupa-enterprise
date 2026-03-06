@@ -7,36 +7,94 @@ import CTASection from "@/components/shared/CTASection";
 import SectionHeader from "@/components/shared/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { useFetchProduct } from "@/services/productService";
+import { useCartStore } from "@/store/cartStore";
 import { Product } from "@/types/product";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { useState } from "react";
-import { useParams } from "react-router-dom";
-
-const initialSpecs: ProductSpec[] = [
-  { name: "12 x 36 x 84 h - Lyon Gray 6-Shelf Light-Duty Boltless Shelving", depth: "24", width: "48", height: "25 Dec, 2025", price: 108, quantity: 0 },
-  { name: "12 x 42 x 84 h - Lyon Gray 6-Shelf Light-Duty Boltless Shelving", depth: "42", width: "12", height: "25 Dec, 2025", price: 102, quantity: 0 },
-  { name: "12 x 36 x 84 h - Lyon Gray 6-Shelf Light-Duty Boltless Shelving Starter", depth: "21", width: "18", height: "20 Dec, 2025", price: 61, quantity: 0 },
-  { name: "12 x 42 x 84 h - Lyon Gray 6-Shelf Light-Duty Boltless Shelving", depth: "36", width: "64", height: "25 Dec, 2025", price: 218, quantity: 0 },
-  { name: "12 x 36 x 84 h - Lyon Gray 6-Shelf Light-Duty Boltless Shelving", depth: "48", width: "12", height: "25 Dec, 2025", price: 205, quantity: 0 },
-];
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data: productData } = useFetchProduct(id);
   const product = productData?.data as Product;
-  const [specs, setSpecs] = useState<ProductSpec[]>(initialSpecs);
+  const [specs, setSpecs] = useState<ProductSpec[]>([]);
+  const { addItem } = useCartStore();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [id]);
+
+  useEffect(() => {
+    if (product?.productVariations) {
+      const formattedSpecs = product.productVariations.map((variation) => ({
+        name: `${product.name} - ${variation.sku}`,
+        depth: variation.depth || "N/A",
+        width: variation.width || "N/A",
+        height: variation.height || "N/A",
+        price: variation.price,
+        stock: variation.stock,
+        sku: variation.sku,
+        quantity: 0,
+      }));
+      setSpecs(formattedSpecs);
+    }
+  }, [product]);
 
   const handleQuantityChange = (index: number, delta: number) => {
     setSpecs((prev) =>
-      prev.map((spec, i) =>
-        i === index
-          ? { ...spec, quantity: Math.max(0, spec.quantity + delta) }
-          : spec
-      )
+      prev.map((spec, i) => {
+        if (i !== index) return spec;
+        const stock = typeof spec.stock === "number" ? spec.stock : Infinity;
+        const newQty = Math.max(0, spec.quantity + delta);
+        return { ...spec, quantity: Math.min(newQty, stock) };
+      })
     );
   };
 
-  // calculate offer price if offer exists
+  // Get selected specs (quantity > 0)
+  const selectedSpecs = specs.filter((s) => s.quantity > 0);
+
+  const handleAddToCart = () => {
+    if (selectedSpecs.length === 0) {
+      toast.error("Please select at least one product variation.");
+      return;
+    }
+    selectedSpecs.forEach((spec) => {
+      addItem({
+        id: `${product.id}-${spec.sku}`,
+        productId: product.id,
+        sku: spec.sku,
+        name: spec.name,
+        image: product.mainProductImage,
+        price: spec.price,
+        quantity: spec.quantity,
+        stock: typeof spec.stock === "number" ? spec.stock : 999,
+      });
+    });
+    toast.success("Added to cart!");
+  };
+
+  const handleBuyNow = () => {
+    if (selectedSpecs.length === 0) {
+      toast.error("Please select at least one product variation.");
+      return;
+    }
+    selectedSpecs.forEach((spec) => {
+      addItem({
+        id: `${product.id}-${spec.sku}`,
+        productId: product.id,
+        sku: spec.sku,
+        name: spec.name,
+        image: product.mainProductImage,
+        price: spec.price,
+        quantity: spec.quantity,
+        stock: typeof spec.stock === "number" ? spec.stock : 999,
+      });
+    });
+    navigate("/delivery");
+  };
 
   return (
     <MainLayout>
@@ -51,7 +109,10 @@ const ProductDetails = () => {
         {/* Product Info */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mt-6">
           {/* Gallery */}
-          <ProductGallery images={product?.galleryProductImages || [product?.mainProductImage] || []} productName={product?.name || "Product"} />
+          <ProductGallery
+            images={product?.galleryProductImages || [product?.mainProductImage] || []}
+            productName={product?.name || "Product"}
+          />
 
           {/* Details */}
           <div>
@@ -61,11 +122,15 @@ const ProductDetails = () => {
               {product?.productVariations?.[0]?.price != null && (
                 <>
                   <span className="text-xl font-bold">
-                    BDT {product.offer
-                      ? (product.productVariations![0].price * (1 - product.offer / 100)).toLocaleString()
+                    BDT{" "}
+                    {product.offer
+                      ? (
+                          product.productVariations![0].price *
+                          (1 - product.offer / 100)
+                        ).toLocaleString()
                       : product.productVariations![0].price.toLocaleString()}
                   </span>
-                  {product.offer && (
+                  {product.offer && product.offer !== 0 && (
                     <span className="text-muted-foreground line-through">
                       BDT {product.productVariations![0].price.toLocaleString()}
                     </span>
@@ -79,55 +144,59 @@ const ProductDetails = () => {
                   <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">{product?.rating?.total || 100} Reviews</span>
+              <span className="text-sm text-muted-foreground">
+                {product?.rating?.total || 0} Reviews
+              </span>
             </div>
 
             <h3 className="font-semibold mb-3">Product Description</h3>
             <p className="text-muted-foreground text-sm mb-4">
-              {product?.shortDescription || "Made to maximize storage space and minimize set-up time. All components attach firmly to one another without the use of fasteners."}
+              {product?.shortDescription ||
+                "Made to maximize storage space and minimize set-up time."}
             </p>
-            <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-              <li>• Open access to contents from all sides</li>
-              <li>• Made of 14-gauge, powder-coated steel</li>
-              <li>• 1-1/2"d x 1-1/2"w x 84"h angle posts</li>
-              <li>• Levels easily adjust on 1-1/2" centers</li>
-              <li>• Optional 5/8" thick particle board decking</li>
-              <li>• Configurable with casters (sold separately)</li>
-              <li>• Easy to assemble</li>
-            </ul>
+            {product?.detailedDescription && (
+              <div
+                className="text-sm text-muted-foreground mb-6 prose prose-sm max-w-none block"
+                dangerouslySetInnerHTML={{ __html: product.detailedDescription }}
+              />
+            )}
 
             {/* Spec Table */}
-            <SpecTable specs={specs} onQuantityChange={handleQuantityChange} />
+            <SpecTable specs={specs || []} onQuantityChange={handleQuantityChange} />
 
             {/* Action Buttons */}
             <div className="flex gap-4 mt-6">
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1" onClick={handleAddToCart}>
                 Add to Cart
               </Button>
-              <Button className="flex-1">Buy Now</Button>
+              <Button className="flex-1" onClick={handleBuyNow}>
+                Buy Now
+              </Button>
             </div>
           </div>
         </div>
 
         {/* Related Products */}
-        <section className="py-16">
-          <div className="flex items-center justify-between mb-8">
-            <SectionHeader title="Related Products" className="mb-0 text-left" align="left" />
-            <div className="flex gap-2">
-              <button className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/80 transition-colors">
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/80 transition-colors">
-                <ChevronRight className="w-5 h-5" />
-              </button>
+        {product?.relatedProducts && product.relatedProducts.length > 0 && (
+          <section className="py-16">
+            <div className="flex items-center justify-between mb-8">
+              <SectionHeader title="Related Products" className="mb-0 text-left" align="left" />
+              <div className="flex gap-2">
+                <button className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/80 transition-colors">
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/80 transition-colors">
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {(product?.relatedProducts || []).map((relatedProduct) => (
-              <ProductCard key={relatedProduct.id} product={relatedProduct} />
-            ))}
-          </div>
-        </section>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {product.relatedProducts.map((relatedProduct) => (
+                <ProductCard key={relatedProduct.id} product={relatedProduct} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       <CTASection />

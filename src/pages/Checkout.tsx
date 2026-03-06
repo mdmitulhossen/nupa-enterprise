@@ -1,73 +1,182 @@
-import { useState } from "react";
-import { CreditCard, Smartphone, Banknote, ChevronDown, Calendar, CreditCard as CardIcon } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
+import BkashPaymentModal from "@/components/modal/BkashPaymentModal";
+import OrderSuccessModal from "@/components/modal/OrderSuccessModal";
+import ShippingAddressModal from "@/components/orders/ShippingAddressModal";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import CTASection from "@/components/shared/CTASection";
 import { Button } from "@/components/ui/button";
+import { useCartStore } from "@/store/cartStore";
+import { useShippingStore } from "@/store/shippingStore";
+import {
+  Banknote,
+  MapPin,
+  Package,
+  Pencil,
+  Smartphone,
+} from "lucide-react";
+import { useState } from "react";
 
 const paymentMethods = [
-  { id: "card", name: "Card", icon: CreditCard },
-  { id: "bkash", name: "bKash", icon: Smartphone },
-  { id: "nagad", name: "নগদ", icon: Smartphone },
-  { id: "cod", name: "Cash On Delivery", icon: Banknote },
+  { id: "bkash", label: "bKash", description: "Send Money via bKash" },
+  { id: "cod", label: "Cash On Delivery", description: "Pay when you receive" },
 ];
 
 const Checkout = () => {
-  const [selectedPayment, setSelectedPayment] = useState("card");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvc, setCvc] = useState("");
-  const [country, setCountry] = useState("Bangladesh");
+  const { items, totalPrice } = useCartStore();
+  const { address } = useShippingStore();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle checkout
+  const [selectedPayment, setSelectedPayment] = useState("bkash");
+  const [bkashModalOpen, setBkashModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+   const [editAddressOpen, setEditAddressOpen] = useState(false);
+
+  const subtotal = totalPrice();
+  const shipping = subtotal >= 50000 ? 0 : subtotal > 0 ? 500 : 0;
+  const total = subtotal + shipping;
+
+  const handlePlaceOrder = () => {
+    if (selectedPayment === "bkash") {
+      setBkashModalOpen(true);
+    } else {
+      // COD — directly show success
+      setSuccessModalOpen(true);
+    }
   };
 
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 py-8 lg:py-12">
+      <div className="container mx-auto px-4 py-6">
+        <Breadcrumb
+          items={[
+            { label: "Cart", path: "/cart" },
+            { label: "Checkout" },
+          ]}
+        />
+      </div>
+
+      <div className="container mx-auto px-4 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-          {/* Billing Details */}
+
+          {/* LEFT — Order Summary */}
           <div>
-            <h2 className="text-2xl lg:text-3xl font-bold mb-6">Billing Details</h2>
-            <div className="bg-card border border-border rounded-xl p-6">
-              <h3 className="font-semibold text-lg mb-2">4-Tier Chrome Wire Shelving Unit</h3>
-              <p className="text-foreground mb-1">BDT 12,500</p>
-              <p className="text-sm text-muted-foreground mb-4">
-                Order description: Delivery - SHEFFIELD, S1 2EP to LEICESTER, LE1 5BD
-              </p>
-              <div className="border-t border-border pt-4 flex items-center justify-between">
-                <span className="font-medium">Total</span>
-                <span className="text-xl font-bold">BDT 12500/=</span>
+            <h2 className="text-2xl font-bold mb-6">Order Summary</h2>
+
+            {/* Cart Items */}
+            <div className="border border-border rounded-xl overflow-hidden mb-6">
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 p-4 border-b border-border last:border-b-0"
+                >
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-14 h-14 rounded-lg object-cover border border-border flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium line-clamp-1">{item.name}</p>
+                    <p className="text-xs text-muted-foreground">SKU: {item.sku}</p>
+                    <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                  </div>
+                  <p className="font-semibold text-sm flex-shrink-0">
+                    BDT {(Number(item.price) * item.quantity).toLocaleString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Price breakdown */}
+            <div className="border border-border rounded-xl p-5 space-y-3 mb-6">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-medium">BDT {subtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Shipping</span>
+                <span className="font-medium">
+                  {shipping === 0 ? "Free" : `BDT ${shipping.toLocaleString()}`}
+                </span>
+              </div>
+              <div className="flex justify-between font-bold text-base border-t border-border pt-3">
+                <span>Total</span>
+                <span>BDT {total.toLocaleString()}</span>
               </div>
             </div>
+
+            {/* Shipping Address */}
+            {address && (
+              <div className="border border-border rounded-xl p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    <span className="font-medium text-sm">Shipping Address</span>
+                  </div>
+                  <button
+                    onClick={() => setEditAddressOpen(true)}
+                    className="text-xs text-primary flex items-center gap-1 hover:underline"
+                  >
+                    <Pencil className="w-3 h-3" /> Edit
+                  </button>
+                </div>
+                <p className="text-sm font-medium">{address.fullName}</p>
+                <p className="text-sm text-muted-foreground">{address.phone}</p>
+                <p className="text-sm text-muted-foreground">
+                  {[address.addressLine1, address.addressLine2, address.thana, address.district, address.division]
+                    .filter(Boolean)
+                    .join(", ")}
+                </p>
+                {address.deliveryNote && (
+                  <p className="text-xs text-muted-foreground mt-1 italic">
+                    Note: {address.deliveryNote}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Payment Information */}
+          {/* RIGHT — Payment */}
           <div>
-            <h2 className="text-2xl lg:text-3xl font-bold mb-6">Payment Information</h2>
+            <h2 className="text-2xl font-bold mb-6">Payment Method</h2>
 
             {/* Payment Method Selection */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <div className="space-y-3 mb-8">
               {paymentMethods.map((method) => (
                 <button
                   key={method.id}
                   onClick={() => setSelectedPayment(method.id)}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                  className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
                     selectedPayment === method.id
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-muted-foreground/30"
                   }`}
                 >
-                  <method.icon
-                    className={`w-6 h-6 ${
-                      selectedPayment === method.id ? "text-primary" : "text-muted-foreground"
-                    }`}
-                  />
-                  <span className="text-sm font-medium">{method.name}</span>
+                  {/* Icon */}
                   <div
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      selectedPayment === method.id ? "border-primary" : "border-muted-foreground/30"
+                    className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      method.id === "bkash"
+                        ? "bg-[#E2136E]/10"
+                        : "bg-muted"
+                    }`}
+                  >
+                    {method.id === "bkash" ? (
+                      <Smartphone className="w-5 h-5 text-[#E2136E]" />
+                    ) : (
+                      <Banknote className="w-5 h-5 text-muted-foreground" />
+                    )}
+                  </div>
+
+                  {/* Label */}
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{method.label}</p>
+                    <p className="text-xs text-muted-foreground">{method.description}</p>
+                  </div>
+
+                  {/* Radio */}
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                      selectedPayment === method.id
+                        ? "border-primary"
+                        : "border-muted-foreground/30"
                     }`}
                   >
                     {selectedPayment === method.id && (
@@ -78,96 +187,62 @@ const Checkout = () => {
               ))}
             </div>
 
-            {/* Card Form */}
-            {selectedPayment === "card" && (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Card Number</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
-                      placeholder="122 21542 674213"
-                      className="w-full px-4 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary/20 pr-16"
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-primary font-bold text-sm">
-                      VISA
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Expiration date (MM/YY)</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={expiry}
-                        onChange={(e) => setExpiry(e.target.value)}
-                        placeholder="25/2024"
-                        className="w-full px-4 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary/20 pr-10"
-                      />
-                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Security Code</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={cvc}
-                        onChange={(e) => setCvc(e.target.value)}
-                        placeholder="CVC"
-                        className="w-full px-4 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary/20 pr-10"
-                      />
-                      <CardIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Country</label>
-                  <div className="relative">
-                    <select
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      className="w-full px-4 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary/20 appearance-none bg-background"
-                    >
-                      <option>Bangladesh</option>
-                      <option>India</option>
-                      <option>Pakistan</option>
-                      <option>United States</option>
-                      <option>United Kingdom</option>
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
-                  </div>
-                </div>
-
-                <Button type="submit" className="w-full mt-6" size="lg">
-                  Checkout
-                </Button>
-              </form>
-            )}
-
-            {/* Other Payment Methods Placeholder */}
-            {selectedPayment !== "card" && (
-              <div className="bg-muted rounded-xl p-8 text-center">
-                <p className="text-muted-foreground">
-                  {selectedPayment === "cod"
-                    ? "Pay when you receive your order"
-                    : `You will be redirected to ${selectedPayment === "bkash" ? "bKash" : "Nagad"} to complete payment`}
+            {/* COD note */}
+            {selectedPayment === "cod" && (
+              <div className="bg-muted rounded-xl p-4 mb-6 flex items-start gap-3">
+                <Package className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-muted-foreground">
+                  Pay in cash when your order is delivered to your doorstep. No advance payment required.
                 </p>
-                <Button className="mt-4" size="lg">
-                  {selectedPayment === "cod" ? "Confirm Order" : "Continue to Payment"}
-                </Button>
               </div>
             )}
+
+            {/* bKash note */}
+            {selectedPayment === "bkash" && (
+              <div className="bg-[#E2136E]/5 border border-[#E2136E]/20 rounded-xl p-4 mb-6 flex items-start gap-3">
+                <Smartphone className="w-5 h-5 text-[#E2136E] mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-muted-foreground">
+                  You will be asked to enter your bKash transaction details after clicking the button below.
+                </p>
+              </div>
+            )}
+
+            <Button
+              className={`w-full ${
+                selectedPayment === "bkash"
+                  ? "bg-[#E2136E] hover:bg-[#E2136E]/90 text-white"
+                  : ""
+              }`}
+              size="lg"
+              onClick={handlePlaceOrder}
+            >
+              {selectedPayment === "bkash" ? "Continue to bKash Payment" : "Confirm Order"}
+            </Button>
           </div>
         </div>
       </div>
 
       <CTASection />
+
+
+      {/* Edit Address Modal */}
+      <ShippingAddressModal
+        isOpen={editAddressOpen}
+        onClose={() => setEditAddressOpen(false)}
+      />
+      {/* bKash Modal */}
+      <BkashPaymentModal
+        isOpen={bkashModalOpen}
+        onClose={() => setBkashModalOpen(false)}
+        totalAmount={total}
+        onSuccess={() => setSuccessModalOpen(true)}
+      />
+
+      {/* Success Modal */}
+      <OrderSuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+      />
     </MainLayout>
   );
 };

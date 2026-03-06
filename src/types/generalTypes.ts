@@ -4,5 +4,6 @@
 export enum StorageKeys {
   token = 'token',
   user = 'user',
+  shippingAddress = 'nupa-shipping-address',
   // add other keys here (e.g. theme = 'theme')
 }
