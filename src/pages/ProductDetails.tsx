@@ -71,6 +71,9 @@ const ProductDetails = () => {
         price: spec.price,
         quantity: spec.quantity,
         stock: typeof spec.stock === "number" ? spec.stock : 999,
+        depth: spec.depth,
+        width: spec.width,
+        height: spec.height,
       });
     });
     toast.success("Added to cart!");

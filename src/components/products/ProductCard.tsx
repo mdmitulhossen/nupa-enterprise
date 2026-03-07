@@ -29,6 +29,9 @@ const ProductCard = ({ product, variant = "default" }: ProductCardProps) => {
       image: product.mainProductImage,
       price: firstVariation.price,
       stock: typeof firstVariation.stock === "number" ? firstVariation.stock : 999,
+      depth: firstVariation.depth,
+      width: firstVariation.width,
+      height: firstVariation.height,
     });
     toast.success("Added to cart!");
   };

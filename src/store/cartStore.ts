@@ -10,6 +10,9 @@ export interface CartItem {
   price: number | string;
   quantity: number;
   stock: number;
+  depth?: number | string;
+  width?: number | string;
+  height?: number | string;
 }
 
 interface CartState {

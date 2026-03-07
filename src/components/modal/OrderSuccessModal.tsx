@@ -1,16 +1,21 @@
 import { Button } from "@/components/ui/button";
+import { PaymentMethod } from "@/services/orderService";
 import { CheckCircle2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface OrderSuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
+  paymentMethod?: PaymentMethod;
 }
 
-const OrderSuccessModal = ({ isOpen, onClose }: OrderSuccessModalProps) => {
+const OrderSuccessModal = ({ isOpen, onClose, paymentMethod }: OrderSuccessModalProps) => {
   const navigate = useNavigate();
 
   if (!isOpen) return null;
+
+  const isBkash = paymentMethod === PaymentMethod.SEND_MONEY;
+  const paymentLabel = isBkash ? "bKash (Send Money)" : "Cash on Delivery";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -35,30 +40,40 @@ const OrderSuccessModal = ({ isOpen, onClose }: OrderSuccessModalProps) => {
                   <CheckCircle2 className="w-9 h-9 text-primary" />
                 </div>
               </div>
-              {/* Ripple rings */}
               <span className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping" />
             </div>
           </div>
 
           <h2 className="text-2xl font-bold mb-2">Order Placed!</h2>
           <p className="text-muted-foreground text-sm mb-1">
-            Thank you for your order. We have received your payment information.
+            Thank you for your order.{" "}
+            {isBkash
+              ? "We have received your payment information."
+              : "Your order has been confirmed."}
           </p>
           <p className="text-muted-foreground text-sm mb-8">
-            Our team will verify your bKash transaction and confirm your order shortly.
+            {isBkash
+              ? "Our team will verify your bKash transaction and confirm your order shortly."
+              : "Please keep the payment ready when our delivery team arrives."}
           </p>
 
-          {/* Divider */}
+          {/* Order info card */}
           <div className="border border-dashed border-border rounded-xl p-4 mb-6 text-left space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Status</span>
-              <span className="font-medium text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-full text-xs">
-                Pending Verification
+              <span
+                className={`font-medium px-2 py-0.5 rounded-full text-xs ${
+                  isBkash
+                    ? "text-amber-600 bg-amber-50 dark:bg-amber-900/20"
+                    : "text-green-600 bg-green-50 dark:bg-green-900/20"
+                }`}
+              >
+                {isBkash ? "Pending Verification" : "Confirmed"}
               </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Payment Method</span>
-              <span className="font-medium">bKash</span>
+              <span className="font-medium">{paymentLabel}</span>
             </div>
           </div>
 
@@ -77,10 +92,10 @@ const OrderSuccessModal = ({ isOpen, onClose }: OrderSuccessModalProps) => {
               className="flex-1"
               onClick={() => {
                 onClose();
-                navigate("/");
+                navigate("/track-order");
               }}
             >
-              Go to Home
+              Track Order
             </Button>
           </div>
         </div>

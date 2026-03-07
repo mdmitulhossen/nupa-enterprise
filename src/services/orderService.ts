@@ -10,7 +10,7 @@ import { extractErrorMsg, formatResponse, logoutFunc } from '../utils/commonUtil
 
 export enum PaymentMethod {
   SEND_MONEY = 'SEND_MONEY',
-  COD = 'COD',
+  COD = 'CASH_ON_DELIVERY',
 }
 
 export enum PaymentStatus {
@@ -31,9 +31,9 @@ export enum OrderStatus {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface VariationDetails {
-  depth: number;
-  width: number;
-  height: number;
+  depth: number | string;
+  width: number | string;
+  height: number | string;
   price: number;
   stock: number;
   sku: string;
@@ -127,6 +127,10 @@ export interface VerifyPaymentPayload {
   status: PaymentStatus;
 }
 
+export interface CancelOrderPayload {
+  reason: string;
+}
+
 // ─── Endpoint ─────────────────────────────────────────────────────────────────
 
 const ORDERS_ENDPOINT = '/order';
@@ -166,6 +170,7 @@ export function useCreateOrder() {
         logoutFunc(msg);
       }
       toast.error(msg);
+      setLoading(false);
       return Promise.reject(err);
     },
     onSettled: () => {
@@ -357,6 +362,55 @@ export function useVerifyPayment() {
         logoutFunc(msg);
       }
       toast.error(msg);
+      return Promise.reject(err);
+    },
+    onSettled: () => {
+      setLoading(false);
+    },
+  });
+}
+
+/**
+ * Hook to cancel an order (PATCH /order/:id/cancel)
+ */
+export function useCancelOrder() {
+  const queryClient = useQueryClient();
+  const setLoading = useUiStore((s) => s.setLoading);
+
+  return useMutation<
+    SingleResponse<Order>,
+    unknown,
+    { id: string; payload: CancelOrderPayload }
+  >({
+    mutationFn: async ({ id, payload }) => {
+      const response = await patchAxios<SingleResponse<Order>, CancelOrderPayload>(
+        `${ORDERS_ENDPOINT}/${id}/cancel`,
+        payload
+      );
+      return formatResponse(response);
+    },
+    onMutate: () => {
+      setLoading(true);
+    },
+    onSuccess: (data, variables) => {
+      if (!data.success) {
+        toast.error(data.message || 'Failed to cancel order');
+        return;
+      }
+      toast.success(data.message || 'Order cancelled successfully');
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      if (variables?.id) {
+        queryClient.invalidateQueries({ queryKey: ['order', variables.id] });
+      }
+    },
+    onError: (err: unknown) => {
+      const msg = extractErrorMsg(err);
+      if ((err as any)?.response?.status === 401) {
+        logoutFunc(msg);
+      }
+      toast.error(msg);
+      setLoading(false);
       return Promise.reject(err);
     },
     onSettled: () => {

@@ -5,16 +5,16 @@ import ShippingAddressModal from "@/components/orders/ShippingAddressModal";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import CTASection from "@/components/shared/CTASection";
 import { Button } from "@/components/ui/button";
+import {
+  CreateOrderPayload,
+  PaymentMethod,
+  useCreateOrder,
+} from "@/services/orderService";
 import { useCartStore } from "@/store/cartStore";
 import { useShippingStore } from "@/store/shippingStore";
-import {
-  Banknote,
-  MapPin,
-  Package,
-  Pencil,
-  Smartphone,
-} from "lucide-react";
+import { Banknote, MapPin, Package, Pencil, Smartphone } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const paymentMethods = [
   { id: "bkash", label: "bKash", description: "Send Money via bKash" },
@@ -22,24 +22,65 @@ const paymentMethods = [
 ];
 
 const Checkout = () => {
-  const { items, totalPrice } = useCartStore();
+  const { items, totalPrice, clearCart } = useCartStore();
   const { address } = useShippingStore();
+  const createOrderMutation = useCreateOrder();
 
   const [selectedPayment, setSelectedPayment] = useState("bkash");
   const [bkashModalOpen, setBkashModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-   const [editAddressOpen, setEditAddressOpen] = useState(false);
+  const [editAddressOpen, setEditAddressOpen] = useState(false);
+  const [placedPaymentMethod, setPlacedPaymentMethod] = useState<PaymentMethod>(
+    PaymentMethod.SEND_MONEY
+  );
 
   const subtotal = totalPrice();
   const shipping = subtotal >= 50000 ? 0 : subtotal > 0 ? 500 : 0;
   const total = subtotal + shipping;
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (selectedPayment === "bkash") {
       setBkashModalOpen(true);
-    } else {
-      // COD — directly show success
+      return;
+    }
+
+    // ── COD flow ──────────────────────────────────────────────
+    if (!address) {
+      toast.error("Please add a shipping address");
+      return;
+    }
+    if (items.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+
+    const payload: CreateOrderPayload = {
+      orderItems: items.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        price: Number(item.price),
+        variationDetails: {
+          sku: item.sku,
+          price: Number(item.price),
+          stock: item.stock,
+          depth: item.depth ?? 0,
+          width: item.width ?? 0,
+          height: item.height ?? 0,
+        },
+      })),
+      totalAmount: total,
+      paymentMethod: PaymentMethod.COD,
+      shippingAddress: address,
+      // accountInfo is null/undefined for COD
+    };
+
+    try {
+      await createOrderMutation.mutateAsync(payload);
+      clearCart();
+      setPlacedPaymentMethod(PaymentMethod.COD);
       setSuccessModalOpen(true);
+    } catch {
+      // error toast already handled in useCreateOrder onError
     }
   };
 
@@ -138,7 +179,6 @@ const Checkout = () => {
           <div>
             <h2 className="text-2xl font-bold mb-6">Payment Method</h2>
 
-            {/* Payment Method Selection */}
             <div className="space-y-3 mb-8">
               {paymentMethods.map((method) => (
                 <button
@@ -150,12 +190,9 @@ const Checkout = () => {
                       : "border-border hover:border-muted-foreground/30"
                   }`}
                 >
-                  {/* Icon */}
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      method.id === "bkash"
-                        ? "bg-[#E2136E]/10"
-                        : "bg-muted"
+                      method.id === "bkash" ? "bg-[#E2136E]/10" : "bg-muted"
                     }`}
                   >
                     {method.id === "bkash" ? (
@@ -164,14 +201,10 @@ const Checkout = () => {
                       <Banknote className="w-5 h-5 text-muted-foreground" />
                     )}
                   </div>
-
-                  {/* Label */}
                   <div className="flex-1">
                     <p className="font-medium text-sm">{method.label}</p>
                     <p className="text-xs text-muted-foreground">{method.description}</p>
                   </div>
-
-                  {/* Radio */}
                   <div
                     className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                       selectedPayment === method.id
@@ -187,7 +220,6 @@ const Checkout = () => {
               ))}
             </div>
 
-            {/* COD note */}
             {selectedPayment === "cod" && (
               <div className="bg-muted rounded-xl p-4 mb-6 flex items-start gap-3">
                 <Package className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
@@ -197,7 +229,6 @@ const Checkout = () => {
               </div>
             )}
 
-            {/* bKash note */}
             {selectedPayment === "bkash" && (
               <div className="bg-[#E2136E]/5 border border-[#E2136E]/20 rounded-xl p-4 mb-6 flex items-start gap-3">
                 <Smartphone className="w-5 h-5 text-[#E2136E] mt-0.5 flex-shrink-0" />
@@ -215,8 +246,13 @@ const Checkout = () => {
               }`}
               size="lg"
               onClick={handlePlaceOrder}
+              disabled={createOrderMutation.isPending}
             >
-              {selectedPayment === "bkash" ? "Continue to bKash Payment" : "Confirm Order"}
+              {createOrderMutation.isPending
+                ? "Placing Order..."
+                : selectedPayment === "bkash"
+                ? "Continue to bKash Payment"
+                : "Confirm Order"}
             </Button>
           </div>
         </div>
@@ -224,24 +260,26 @@ const Checkout = () => {
 
       <CTASection />
 
-
-      {/* Edit Address Modal */}
       <ShippingAddressModal
         isOpen={editAddressOpen}
         onClose={() => setEditAddressOpen(false)}
+        // redirectOnSubmit={false}
       />
-      {/* bKash Modal */}
+
       <BkashPaymentModal
         isOpen={bkashModalOpen}
         onClose={() => setBkashModalOpen(false)}
         totalAmount={total}
-        onSuccess={() => setSuccessModalOpen(true)}
+        onSuccess={() => {
+          setPlacedPaymentMethod(PaymentMethod.SEND_MONEY);
+          setSuccessModalOpen(true);
+        }}
       />
 
-      {/* Success Modal */}
       <OrderSuccessModal
         isOpen={successModalOpen}
         onClose={() => setSuccessModalOpen(false)}
+        paymentMethod={placedPaymentMethod}
       />
     </MainLayout>
   );
