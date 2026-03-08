@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getAxios, postAxios } from "@/axios/generic-api-calls";
+import { getAxios, patchAxios, postAxios } from "@/axios/generic-api-calls";
 import { useAuthStore } from "@/store/authStore";
 import { useUserStore } from "@/store/userStore";
 import { useUiStore } from "@/store/useUiStore";
@@ -79,6 +79,14 @@ export interface UserQueryParams {
   limit?: number;
   searchTerm?: string;
 }
+
+export interface UpdateUserPayload {
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string | null;
+  address?: string | null;
+}
+
 
 // services/user.service.ts
 const USERS_ENDPOINT = "/user";
@@ -204,4 +212,38 @@ export function useCreateUser() {
             setLoading(false);
         },
     });
+}
+
+// update
+export function useUpdateUser() {
+  const setLoading = useUiStore((s) => s.setLoading);
+  const queryClient = useQueryClient();
+
+  return useMutation<SingleResponse<User>, unknown, UpdateUserPayload>({
+    mutationFn: async (payload) => {
+      const response = await patchAxios<SingleResponse<User>, UpdateUserPayload>(
+        `${USERS_ENDPOINT}/update-user`,
+        payload
+      );
+      return formatResponse(response);
+    },
+    onMutate: () => setLoading(true),
+    onSuccess: (res) => {
+      if (!res.success) {
+        toast.error(res.message || "Failed to update profile");
+        return;
+      }
+      toast.success(res.message || "Profile updated");
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+    onError: (err: unknown) => {
+      const msg = extractErrorMsg(err);
+      if ((err as any)?.response?.status === 401) {
+        logoutFunc(msg);
+      }
+      toast.error(msg);
+      return Promise.reject(err);
+    },
+    onSettled: () => setLoading(false),
+  });
 }

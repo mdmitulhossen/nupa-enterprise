@@ -44,6 +44,7 @@ import AdminProfile from "./pages/admin/Profile";
 import AdminQuotes from "./pages/admin/Quotes";
 import Ratings from "./pages/admin/Ratings";
 import Users from "./pages/admin/Users";
+import ProfilePage from "./pages/ProfilePage";
 import RequestQuote from "./pages/RequestQuote";
 import TrackQuote from "./pages/TrackQuote";
 
@@ -82,6 +83,7 @@ const App = () => (
           <Route path="/cart" element={<Cart />} />
           <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/track-quote" element={<TrackQuote />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
