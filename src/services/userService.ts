@@ -242,6 +242,7 @@ export function useUpdateUser() {
         logoutFunc(msg);
       }
       toast.error(msg);
+      setLoading(false);
       return Promise.reject(err);
     },
     onSettled: () => setLoading(false),

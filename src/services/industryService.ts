@@ -30,7 +30,9 @@ export function useFetchIndustries(params: IndustryListParams = {}, enabled: boo
                     return await Promise.reject(new Error(msg));
                 }
                 // toast.error(msg);
+                setLoading(false);
                 return await Promise.reject(new Error(msg));
+
             } finally {
                 setLoading(false);
             }
@@ -57,6 +59,7 @@ export function useFetchIndustry(id: string | undefined, enabled: boolean = true
                     return await Promise.reject(new Error(msg));
                 }
                 // toast.error(msg);
+                setLoading(false);
                 return await Promise.reject(new Error(msg));
             } finally {
                 setLoading(false);
@@ -94,6 +97,7 @@ export function useCreateIndustry() {
                 logoutFunc(msg);
             }
             toast.error(msg);
+            setLoading(false);
             return Promise.reject(err);
         },
         onSettled: () => {
@@ -132,6 +136,7 @@ export function useUpdateIndustry() {
                 logoutFunc(msg);
             }
             toast.error(msg);
+            setLoading(false);
             return Promise.reject(err);
         },
         onSettled: () => {
@@ -170,6 +175,7 @@ export function useDeleteIndustry() {
                 logoutFunc(msg);
             }
             toast.error(msg);
+            setLoading(false);
             return Promise.reject(err);
         },
         onSettled: () => {

@@ -48,6 +48,7 @@ export function useFetchAdminStats(enabled: boolean = true) {
           logoutFunc(msg);
           return await Promise.reject(new Error(msg));
         }
+        setLoading(false);
         return await Promise.reject(new Error(msg));
       } finally {
         setLoading(false);

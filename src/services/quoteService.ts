@@ -171,6 +171,7 @@ export function useFetchMyQuotes(params: MyQuotesParams = {}, enabled: boolean =
           logoutFunc(msg);
           return await Promise.reject(new Error(msg));
         }
+        setLoading(false);
         return await Promise.reject(new Error(msg));
       } finally {
         setLoading(false);
@@ -203,6 +204,7 @@ export function useFetchAllQuotes(params: AllQuotesParams = {}, enabled: boolean
           logoutFunc(msg);
           return await Promise.reject(new Error(msg));
         }
+        setLoading(false);
         return await Promise.reject(new Error(msg));
       } finally {
         setLoading(false);
@@ -234,6 +236,7 @@ export function useFetchQuote(id: string | undefined, enabled: boolean = true) {
           logoutFunc(msg);
           return await Promise.reject(new Error(msg));
         }
+        setLoading(false);
         return await Promise.reject(new Error(msg));
       } finally {
         setLoading(false);
@@ -284,6 +287,7 @@ export function useRespondToQuote() {
         logoutFunc(msg);
       }
       toast.error(msg);
+      setLoading(false);
       return Promise.reject(err);
     },
     onSettled: () => {
@@ -332,6 +336,7 @@ export function useAcceptQuote() {
         logoutFunc(msg);
       }
       toast.error(msg);
+      setLoading(false);
       return Promise.reject(err);
     },
     onSettled: () => {
@@ -380,6 +385,7 @@ export function useUpdateQuoteStatus() {
         logoutFunc(msg);
       }
       toast.error(msg);
+      setLoading(false);
       return Promise.reject(err);
     },
     onSettled: () => {

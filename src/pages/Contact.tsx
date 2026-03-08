@@ -1,13 +1,15 @@
 import MainLayout from "@/components/layout/MainLayout";
-import PageBanner from "@/components/shared/PageBanner";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import ContactInfoCard from "@/components/shared/ContactInfoCard";
 import CTASection from "@/components/shared/CTASection";
+import PageBanner from "@/components/shared/PageBanner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { useCreateContact } from "@/services/contactService";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 const contactInfo = [
   { icon: <Phone className="w-5 h-5 text-primary" />, title: "Phone", subtitle: "Call us anytime", value: "01739-748268" },
@@ -17,6 +19,44 @@ const contactInfo = [
 ];
 
 const Contact = () => {
+  const createContact = useCreateContact();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<{
+    name: string;
+    email: string;
+    phone?: string;
+    subject: string;
+    message: string;
+  }>({
+    mode: "onTouched",
+    defaultValues: { name: "", email: "", phone: "", subject: "", message: "" },
+  });
+
+  const onSubmit = async (data: {
+    name: string;
+    email: string;
+    phone?: string;
+    subject: string;
+    message: string;
+  }) => {
+    try {
+      await createContact.mutateAsync({
+        name: data.name.trim(),
+        email: data.email.trim(),
+        phone: data.phone?.trim() || undefined,
+        subject: data.subject.trim(),
+        message: data.message.trim(),
+      });
+      reset();
+    } catch {
+      /* handled by hook (toasts) */
+    }
+  };
   return (
     <MainLayout>
       <PageBanner 
@@ -48,24 +88,72 @@ const Contact = () => {
             {/* Contact Form */}
             <div className="bg-background border border-border rounded-xl p-6 lg:p-8">
               <h3 className="text-xl font-semibold mb-6">Send us a Message</h3>
-              <form className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div>
                   <Label htmlFor="fullName">Full Name *</Label>
-                  <Input id="fullName" placeholder="Your name" className="mt-1" />
+                  <Input
+                    id="fullName"
+                    placeholder="Your name"
+                    className="mt-1"
+                    {...register("name", { required: "Name is required", minLength: { value: 2, message: "Too short" } })}
+                  />
+                  {errors.name && <p className="text-xs text-destructive mt-1">{String(errors.name.message)}</p>}
                 </div>
+
                 <div>
                   <Label htmlFor="email">Email Address *</Label>
-                  <Input id="email" type="email" placeholder="your@email.com" className="mt-1" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    className="mt-1"
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid email" },
+                    })}
+                  />
+                  {errors.email && <p className="text-xs text-destructive mt-1">{String(errors.email.message)}</p>}
                 </div>
+
+                <div>
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    placeholder="+8801XXXXXXXXX"
+                    className="mt-1"
+                    {...register("phone", {
+                      pattern: { value: /^\+?\d{7,15}$/, message: "Invalid phone number" },
+                    })}
+                  />
+                  {errors.phone && <p className="text-xs text-destructive mt-1">{String(errors.phone.message)}</p>}
+                </div>
+
                 <div>
                   <Label htmlFor="subject">Subject *</Label>
-                  <Input id="subject" placeholder="How can we help?" className="mt-1" />
+                  <Input
+                    id="subject"
+                    placeholder="How can we help?"
+                    className="mt-1"
+                    {...register("subject", { required: "Subject is required" })}
+                  />
+                  {errors.subject && <p className="text-xs text-destructive mt-1">{String(errors.subject.message)}</p>}
                 </div>
+
                 <div>
                   <Label htmlFor="message">Message *</Label>
-                  <Textarea id="message" placeholder="Your message..." rows={4} className="mt-1" />
+                  <Textarea
+                    id="message"
+                    placeholder="Your message..."
+                    rows={4}
+                    className="mt-1"
+                    {...register("message", { required: "Message is required", minLength: { value: 5, message: "Too short" } })}
+                  />
+                  {errors.message && <p className="text-xs text-destructive mt-1">{String(errors.message.message)}</p>}
                 </div>
-                <Button type="submit" className="w-full">Send Message</Button>
+
+                <Button type="submit" className="w-full" disabled={isSubmitting || createContact.isPending}>
+                  {createContact.isPending ? "Sending..." : "Send Message"}
+                </Button>
               </form>
             </div>
           </div>

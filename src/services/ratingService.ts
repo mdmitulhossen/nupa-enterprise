@@ -30,6 +30,7 @@ export interface RatingListParams {
   page?: number;
   limit?: number;
   productId?: string;
+  isFeatured?:boolean
 }
 
 export interface CreateRatingPayload {
@@ -74,6 +75,7 @@ export function useFetchRatings(params: RatingListParams = {}, enabled: boolean 
                     logoutFunc(msg);
                     return await Promise.reject(new Error(msg));
                 }
+                setLoading(false);
                 return await Promise.reject(new Error(msg));
             } finally {
                 setLoading(false);
@@ -102,6 +104,7 @@ export function useFetchRating(id: string | undefined, enabled: boolean = true) 
                     logoutFunc(msg);
                     return await Promise.reject(new Error(msg));
                 }
+                setLoading(false);
                 return await Promise.reject(new Error(msg));
             } finally {
                 setLoading(false);
@@ -185,6 +188,7 @@ export function useUpdateRating() {
                 logoutFunc(msg);
             }
             toast.error(msg);
+            setLoading(false);
             return Promise.reject(err);
         },
         onSettled: () => {
@@ -224,6 +228,7 @@ export function useDeleteRating() {
                 logoutFunc(msg);
             }
             toast.error(msg);
+            setLoading(false);
             return Promise.reject(err);
         },
         onSettled: () => {

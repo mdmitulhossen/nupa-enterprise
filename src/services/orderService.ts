@@ -201,6 +201,7 @@ export function useFetchMyOrders(params: MyOrdersParams = {}, enabled: boolean =
           logoutFunc(msg);
           return await Promise.reject(new Error(msg));
         }
+        setLoading(false);
         return await Promise.reject(new Error(msg));
       } finally {
         setLoading(false);
@@ -233,6 +234,7 @@ export function useFetchAllOrders(params: AllOrdersParams = {}, enabled: boolean
           logoutFunc(msg);
           return await Promise.reject(new Error(msg));
         }
+        setLoading(false);
         return await Promise.reject(new Error(msg));
       } finally {
         setLoading(false);
@@ -264,6 +266,7 @@ export function useFetchOrder(id: string | undefined, enabled: boolean = true) {
           logoutFunc(msg);
           return await Promise.reject(new Error(msg));
         }
+        setLoading(false);
         return await Promise.reject(new Error(msg));
       } finally {
         setLoading(false);
@@ -313,6 +316,7 @@ export function useUpdateOrderStatus() {
       if ((err as any)?.response?.status === 401) {
         logoutFunc(msg);
       }
+      setLoading(false);
       toast.error(msg);
       return Promise.reject(err);
     },
@@ -362,6 +366,7 @@ export function useVerifyPayment() {
         logoutFunc(msg);
       }
       toast.error(msg);
+      setLoading(false);
       return Promise.reject(err);
     },
     onSettled: () => {

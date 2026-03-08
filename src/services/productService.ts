@@ -35,6 +35,7 @@ export function useFetchProducts(params: ProductListParams = {}, enabled: boolea
                     return await Promise.reject(new Error(msg));
                 }
                 // toast.error(msg);
+                setLoading(false);
                 return await Promise.reject(new Error(msg));
             } finally {
                 setLoading(false);
@@ -61,6 +62,7 @@ export function useFetchSearchAbleProducts() {
                     return await Promise.reject(new Error(msg));
                 }
                 // toast.error(msg);
+                setLoading(false);
                 return await Promise.reject(new Error(msg));
             } finally {
                 setLoading(false);
@@ -89,6 +91,7 @@ export function useFetchProduct(id: string | undefined, enabled: boolean = true)
                     return await Promise.reject(new Error(msg));
                 }
                 // toast.error(msg);
+                setLoading(false);
                 return await Promise.reject(new Error(msg));
             } finally {
                 setLoading(false);
@@ -129,6 +132,7 @@ export function useCreateProduct() {
                 logoutFunc(msg);
             }
             // toast.error(msg);
+            setLoading(false);
             return Promise.reject(err);
         },
         onSettled: () => {
@@ -171,6 +175,7 @@ export function useUpdateProduct() {
                 logoutFunc(msg);
             }
             // toast.error(msg);
+            setLoading(false);
             return Promise.reject(err);
         },
         onSettled: () => {
@@ -212,6 +217,7 @@ export function useDeleteProduct() {
                 logoutFunc(msg);
             }
             toast.error(msg);
+            setLoading(false);
             return Promise.reject(err);
         },
         onSettled: () => {

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useTitle } from '@/hooks/useTitle';
 import { useFetchCategories } from "@/services/categoryService";
 import { useFetchProducts } from "@/services/productService";
+import { useFetchRatings } from "@/services/ratingService";
 import { Category } from "@/types/category";
 import { CheckCircle, Headphones, Search, Shield, Truck } from "lucide-react";
 import { useState } from "react";
@@ -50,6 +51,10 @@ const Home = () => {
 
    const { data: cats} = useFetchCategories({ limit: 100 });
      const { data: productsData } = useFetchProducts({ limit: 6, isFeature: true });
+
+   const { data: ratingsResponse } = useFetchRatings({
+             isFeatured:true
+         });
 
 
   const submitSearch = () => {
@@ -315,22 +320,24 @@ const Home = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 lg:py-24 bg-muted">
+      {
+        ratingsResponse && ratingsResponse?.data && (
+          <section className="py-16 lg:py-24 bg-muted">
         <div className="container mx-auto px-4">
           <SectionHeader
             title="Client Testimonials"
             subtitle="What our clients say about our storage solutions"
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, index) => (
+            {ratingsResponse?.data?.map((testimonial, index) => (
               <div key={index} className="bg-card rounded-xl p-6 border border-border">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="font-bold text-primary">{testimonial.name.charAt(0)}</span>
+                    <span className="font-bold text-primary">{testimonial.user.firstName?.charAt(0)}</span>
                   </div>
                   <div>
-                    <p className="font-semibold">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.company}</p>
+                    <p className="font-semibold">{testimonial.user?.firstName}</p>
+                    {/* <p className="text-sm text-muted-foreground">{testimonial.}</p> */}
                   </div>
                 </div>
                 <div className="flex gap-0.5 mb-3">
@@ -338,12 +345,14 @@ const Home = () => {
                     <span key={i} className="text-amber-400">★</span>
                   ))}
                 </div>
-                <p className="text-sm text-muted-foreground">{testimonial.text}</p>
+                <p className="text-sm text-muted-foreground">{testimonial.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
+        )
+      }
 
       {/* CTA Section */}
       <CTASection />

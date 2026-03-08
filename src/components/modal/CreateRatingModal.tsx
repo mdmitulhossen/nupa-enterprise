@@ -42,7 +42,7 @@ export default function CreateRatingModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh]">
         <div className="space-y-4">
           <div className="flex items-start justify-between">
             <div>

@@ -2,14 +2,14 @@ import { Star } from "lucide-react";
 
 interface TestimonialCardProps {
   name: string;
-  location: string;
+  // location: string;
   date: string;
   rating: number;
   content: string;
   avatar?: string;
 }
 
-const TestimonialCard = ({ name, location, date, rating, content, avatar }: TestimonialCardProps) => {
+const TestimonialCard = ({ name, date, rating, content, avatar }: TestimonialCardProps) => {
   return (
     <div className="bg-background border border-border rounded-lg p-6">
       <div className="flex items-start gap-4 mb-4">
@@ -22,9 +22,9 @@ const TestimonialCard = ({ name, location, date, rating, content, avatar }: Test
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-foreground truncate">{name}</p>
-          <p className="text-xs text-muted-foreground">
+          {/* <p className="text-xs text-muted-foreground">
             <span className="text-primary">📍 {location}</span> • {date}
-          </p>
+          </p> */}
         </div>
       </div>
       <div className="flex gap-1 mb-3">

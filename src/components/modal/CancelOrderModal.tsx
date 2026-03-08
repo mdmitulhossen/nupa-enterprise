@@ -61,7 +61,7 @@ const CancelOrderModal = ({
         onClick={handleClose}
       />
 
-      <div className="relative bg-background border border-border rounded-2xl w-full max-w-md shadow-xl z-10">
+      <div className="relative bg-background border border-border rounded-2xl w-full max-w-md max-h-[90vh] shadow-xl z-10">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border">
           <div className="flex items-center gap-3">

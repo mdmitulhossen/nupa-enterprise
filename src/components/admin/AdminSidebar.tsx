@@ -24,6 +24,7 @@ const mainNavItems = [
   { label: "Users", path: "/admin/users", icon: User },
   { label: "Ratings", path: "/admin/ratings", icon: Star },
   { label: "CMS", path: "/admin/cms", icon: PenTool },
+  { label: "Contact", path: "/admin/contact", icon: MessageSquareQuote },
   // { label: "Delivery Management", path: "/admin/delivery", icon: Truck },
 ];
 
