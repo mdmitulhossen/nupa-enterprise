@@ -1,232 +1,303 @@
-import { useState } from "react";
-import { Users, FileText, CheckCircle, Clock, Package } from "lucide-react";
+/* eslint-disable no-empty */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AdminLayout from "@/components/admin/AdminLayout";
-import PageHeader from "@/components/admin/PageHeader";
 import DataTable, { Column } from "@/components/admin/DataTable";
+import PageHeader from "@/components/admin/PageHeader";
 import StatusBadge from "@/components/admin/StatusBadge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { demoQuotes, Quote } from "@/data/adminData";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Quote, QuoteStatus, useFetchAllQuotes, useRespondToQuote, useUpdateQuoteStatus } from "@/services/quoteService";
+import { format } from "date-fns";
+import debounce from "lodash/debounce";
+import { Eye, MessageSquare } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
-const quoteStatuses = [
-  { value: "new", label: "New", icon: FileText, color: "text-blue-500" },
-  { value: "in_review", label: "In Review", icon: Clock, color: "text-yellow-500" },
-  { value: "quoted", label: "Quoted", icon: Users, color: "text-purple-500" },
-  { value: "approved", label: "Approved", icon: CheckCircle, color: "text-green-500" },
-  { value: "converted", label: "Converted to Order", icon: Package, color: "text-primary" },
+const STATUS_OPTIONS = [
+  { label: "All", value: "all" },
+  { label: "PENDING", value: QuoteStatus.PENDING },
+  { label: "RESPONDED", value: QuoteStatus.RESPONDED },
+  { label: "ACCEPTED", value: QuoteStatus.ACCEPTED },
+  { label: "REJECTED", value: QuoteStatus.REJECTED },
+  { label: "PROCESSING", value: QuoteStatus.PROCESSING },
+  { label: "SHIPPED", value: QuoteStatus.SHIPPED },
+  { label: "DELIVERED", value: QuoteStatus.DELIVERED },
+  { label: "CANCELLED", value: QuoteStatus.CANCELLED },
 ];
 
 const Quotes = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 20,
+    quote_id: "",
+    status: "all" as string,
+  });
+  const [search, setSearch] = useState(filters.quote_id);
 
-  const statusCounts = {
-    new: demoQuotes.filter((q) => q.status === "new").length,
-    in_review: demoQuotes.filter((q) => q.status === "in_review").length,
-    quoted: demoQuotes.filter((q) => q.status === "quoted").length,
-    approved: demoQuotes.filter((q) => q.status === "approved").length,
-    converted: demoQuotes.filter((q) => q.status === "converted").length,
+  const debounced = useMemo(
+    () =>
+      debounce((q: string) => {
+        setFilters((s) => ({ ...s, quote_id: q, page: 1 }));
+      }, 350),
+    []
+  );
+
+  useEffect(() => {
+    debounced(search);
+    return () => debounced.cancel();
+  }, [search, debounced]);
+
+  const params = useMemo(() => {
+    const p: Record<string, unknown> = { page: filters.page, limit: filters.limit };
+    if (filters.quote_id) p.quote_id = filters.quote_id;
+    if (filters.status && filters.status !== "all") p.status = filters.status;
+    return p;
+  }, [filters]);
+
+  const { data, isLoading } = useFetchAllQuotes(params);
+  const quotes = data?.data ?? [];
+  const meta = data?.meta;
+  const total = meta?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / filters.limit));
+
+  const respondMutation = useRespondToQuote();
+  const updateStatus = useUpdateQuoteStatus();
+
+  const [viewQuote, setViewQuote] = useState<Quote | null>(null);
+  const [respondingQuote, setRespondingQuote] = useState<Quote | null>(null);
+  const [adminResponse, setAdminResponse] = useState("");
+  const [quotedPrice, setQuotedPrice] = useState<string>("");
+
+  const setFilter = <K extends keyof typeof filters, V extends typeof filters[K]>(key: K, value: V) => {
+    setFilters((prev) => ({ ...prev, [key]: value, page: key === "page" ? (value as unknown as number) : 1 }));
   };
 
+  useEffect(() => {
+    if (respondingQuote) {
+      setAdminResponse(respondingQuote.adminResponse ?? "");
+      setQuotedPrice(respondingQuote.quotedPrice ? String(respondingQuote.quotedPrice) : "");
+    } else {
+      setAdminResponse("");
+      setQuotedPrice("");
+    }
+  }, [respondingQuote]);
+
   const columns: Column<Quote>[] = [
-    { header: "Quote ID", accessor: "quoteId", className: "font-medium" },
-    { header: "Customer", accessor: "customer", className: "text-center" },
-    { header: "Product / Category", accessor: "product", className: "text-center" },
+    { header: "Quote ID", accessor: (r) => <div className="font-medium">{r.quote_id}</div> },
+    { header: "Customer", accessor: (r) => r.user?.firstName ?? r.email },
     {
-      header: "Status",
-      accessor: (row) => <StatusBadge status={row.status} />,
+      header: "Items",
+      accessor: (r) => `${r.quoteItems.length} item${r.quoteItems.length > 1 ? "s" : ""}`,
       className: "text-center",
     },
-    { header: "Date", accessor: "date", className: "text-center" },
+    // {
+    //   header: "Admin Response",
+    //   accessor: (r) => (
+    //     <div className="text-sm">
+    //       {r.adminResponse ? (
+    //         <>
+    //           <div className="line-clamp-2 text-muted-foreground">{r.adminResponse}</div>
+    //           {r.quotedPrice != null && <div className="text-xs font-semibold mt-1">BDT {r.quotedPrice.toLocaleString()}</div>}
+    //         </>
+    //       ) : (
+    //         <div className="text-xs text-muted-foreground">No response</div>
+    //       )}
+    //     </div>
+    //   ),
+    // },
+    {
+      header: "Status",
+      accessor: (r) => (
+        <div className="flex items-center gap-2 justify-center">
+          <StatusBadge status={r.status as any} />
+          <select
+            defaultValue={r.status}
+            className="px-2 py-1 text-sm border border-border rounded"
+            onChange={async (e) => {
+              const status = e.target.value as QuoteStatus;
+              try {
+                await updateStatus.mutateAsync({ id: r.id, payload: { status } });
+              } catch {}
+            }}
+          >
+            {Object.values(QuoteStatus).map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+      ),
+      className: "text-center",
+    },
+    { header: "Date", accessor: (r) => format(new Date(r.createdAt), "dd MMM yyyy"), className: "text-center" },
     {
       header: "Action",
-      accessor: (row) => (
-        <Button
-          size="sm"
-          onClick={() => {
-            setSelectedQuote(row);
-            setIsModalOpen(true);
-          }}
-        >
-          View Details
-        </Button>
+      accessor: (r) => (
+        <div className="flex items-center gap-2 justify-center">
+          <Button size="sm" variant="ghost" onClick={() => setViewQuote(r)}>
+            <Eye className="w-4 h-4" />
+          </Button>
+          <Button size="sm" onClick={() => setRespondingQuote(r)}>
+            <MessageSquare className="w-4 h-4" />
+          </Button>
+        </div>
       ),
       className: "text-center",
     },
   ];
 
-  const filteredQuotes = demoQuotes.filter((quote) => {
-    const matchesSearch =
-      quote.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      quote.product.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      quote.quoteId.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || quote.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
   return (
     <AdminLayout>
-      <PageHeader
-        title="Quote Management"
-        subtitle="Manage customer quote requests and send proposals"
-      />
+      <PageHeader title="Quote Management" subtitle="Manage customer quote requests and send proposals" />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6 mb-6">
-        {quoteStatuses.map((status) => (
-          <div
-            key={status.value}
-            className="bg-background rounded-xl border border-border p-4"
-          >
-            <p className="text-sm text-muted-foreground">{status.label}</p>
-            <p className="text-2xl font-bold mt-1">
-              {statusCounts[status.value as keyof typeof statusCounts]}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Filters */}
+      {/* Filters bar */}
       <div className="bg-background rounded-xl border border-border p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <Input
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          {/* Search */}
+          <div className="flex items-center gap-2 border border-border rounded-lg px-3 py-2 flex-1">
+            <Input placeholder="Search by quote id, email or customer..." value={search} onChange={(e) => setSearch(e.target.value)} className="border-0 p-0 h-auto shadow-none focus-visible:ring-0 text-sm" />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="new">New</SelectItem>
-              <SelectItem value="in_review">In Review</SelectItem>
-              <SelectItem value="quoted">Quoted</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="converted">Converted</SelectItem>
-            </SelectContent>
-          </Select>
+
+          {/* Status select */}
+          <div className="flex items-center gap-2">
+            <Select value={filters.status} onValueChange={(v) => setFilter("status", String(v))}>
+              <SelectTrigger className="w-[170px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {/* simple page size / refresh area (optional) */}
+            <div className="text-sm text-muted-foreground">Total: {total}</div>
+          </div>
         </div>
       </div>
 
-      {/* Table */}
-      <DataTable columns={columns} data={filteredQuotes} />
+      <DataTable columns={columns} data={quotes} emptyMessage={isLoading ? "Loading..." : "No quotes found"} />
 
-      {/* Quote Details Modal */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Quote Details</DialogTitle>
-            <DialogDescription>{selectedQuote?.quoteId}</DialogDescription>
-          </DialogHeader>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Page {filters.page} of {totalPages} — {total} total
+          </p>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="ghost" onClick={() => setFilter("page", Math.max(1, filters.page - 1))} disabled={filters.page <= 1}>
+              Prev
+            </Button>
+            <div className="px-3 py-1 border border-border rounded text-sm">{filters.page}</div>
+            <Button size="sm" variant="ghost" onClick={() => setFilter("page", Math.min(totalPages, filters.page + 1))} disabled={filters.page >= totalPages}>
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
-          {selectedQuote && (
-            <div className="space-y-6">
-              {/* Customer Information */}
-              <div className="bg-muted/30 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Users className="w-4 h-4" />
-                  <h4 className="font-medium">Customer Information</h4>
+      {/* View Quote Dialog */}
+      <Dialog open={!!viewQuote} onOpenChange={() => setViewQuote(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          {viewQuote && (
+            <div className="space-y-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">{viewQuote.quote_id}</h3>
+                  <p className="text-xs text-muted-foreground">{format(new Date(viewQuote.createdAt), "dd MMM yyyy, hh:mm a")}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Name</p>
-                    <p className="font-medium">{selectedQuote.customerDetails.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Email</p>
-                    <p className="font-medium">{selectedQuote.customerDetails.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Phone</p>
-                    <p className="font-medium">{selectedQuote.customerDetails.phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Date Requested</p>
-                    <p className="font-medium">{selectedQuote.date}</p>
-                  </div>
-                </div>
+                {/* <button className="text-muted-foreground" onClick={() => setViewQuote(null)}>
+                  <XIcon className="w-4 h-4" />
+                </button> */}
               </div>
 
-              {/* Product Information */}
-              <div className="bg-muted/30 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Package className="w-4 h-4" />
-                  <h4 className="font-medium">Product Information</h4>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Product</p>
-                    <p className="font-medium">{selectedQuote.productDetails.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Category</p>
-                    <p className="font-medium">{selectedQuote.productDetails.category}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Requirements</p>
-                    <p className="font-medium">{selectedQuote.productDetails.requirements}</p>
-                  </div>
-                </div>
+              <div className="bg-muted/40 rounded-xl p-4 border border-border/60">
+                <p className="text-xs text-muted-foreground uppercase">Customer</p>
+                <p className="font-medium">{viewQuote.user?.firstName ?? viewQuote.email}</p>
+                <p className="text-xs text-muted-foreground">{viewQuote.phoneNumber}</p>
               </div>
 
-              {/* Quote Details */}
-              <div className="bg-muted/30 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    <h4 className="font-medium">Quote Details</h4>
-                  </div>
-                  <Button variant="link" size="sm" className="text-primary p-0 h-auto">
-                    Add Pricing
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No pricing added yet
-                </p>
-              </div>
-
-              {/* Quote Status */}
-              <div>
-                <h4 className="font-medium mb-3">Quote Status</h4>
-                <RadioGroup defaultValue={selectedQuote.status} className="space-y-2">
-                  {quoteStatuses.map((status) => (
-                    <div
-                      key={status.value}
-                      className={`flex items-center space-x-3 p-3 rounded-lg border ${
-                        selectedQuote.status === status.value
-                          ? "bg-primary/5 border-primary"
-                          : "border-border"
-                      }`}
-                    >
-                      <RadioGroupItem value={status.value} id={status.value} />
-                      <Label htmlFor={status.value} className="cursor-pointer flex-1">
-                        {status.label}
-                      </Label>
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground uppercase">Items</p>
+                {viewQuote.quoteItems.map((it, i) => (
+                  <div key={i} className="border border-border rounded-lg p-3">
+                    <div className="flex justify-between">
+                      <div>
+                        <p className="font-medium">{it.name ?? it.productId}</p>
+                        <p className="text-xs text-muted-foreground">Qty: {it.quantity}</p>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {Object.keys(it.specifications).length > 0 && (
+                          <div className="space-y-1 text-right">
+                            {Object.entries(it.specifications).map(([k, v]) => (
+                              <div key={k}>
+                                <span className="font-medium">{k}:</span> {String(v)}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  ))}
-                </RadioGroup>
+                  </div>
+                ))}
+              </div>
+
+              {viewQuote.adminResponse && (
+                <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
+                  <p className="text-xs font-semibold text-primary uppercase">Admin Response</p>
+                  <p className="text-sm text-muted-foreground mt-1">{viewQuote.adminResponse}</p>
+                  {viewQuote.quotedPrice != null && <p className="text-sm font-semibold mt-2">BDT {viewQuote.quotedPrice.toLocaleString()}</p>}
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Respond Dialog */}
+      <Dialog open={!!respondingQuote} onOpenChange={() => setRespondingQuote(null)}>
+        <DialogContent className="max-w-lg">
+          {respondingQuote && (
+            <div className="space-y-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">Respond to {respondingQuote.quote_id}</h3>
+                  <p className="text-xs text-muted-foreground">{respondingQuote.user?.firstName ?? respondingQuote.email}</p>
+                </div>
+                {/* <button className="text-muted-foreground" onClick={() => setRespondingQuote(null)}>
+                  <XIcon className="w-4 h-4" />
+                </button> */}
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">Message</label>
+                <textarea value={adminResponse} onChange={(e) => setAdminResponse(e.target.value)} rows={4} className="w-full px-3 py-2 border border-border rounded" />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">Quoted Price (BDT)</label>
+                <input value={quotedPrice} onChange={(e) => setQuotedPrice(e.target.value)} className="w-full px-3 py-2 border border-border rounded" />
+              </div>
+
+              <div className="flex items-center gap-2 justify-end">
+                <Button variant="outline" onClick={() => setRespondingQuote(null)}>Cancel</Button>
+                <Button
+                  onClick={async () => {
+                    if (!respondingQuote) return;
+                    const price = quotedPrice ? Number(quotedPrice) : 0;
+                    try {
+                      await respondMutation.mutateAsync({ id: respondingQuote.id, payload: { adminResponse: adminResponse.trim(), quotedPrice: price } });
+                      setRespondingQuote(null);
+                    } catch {}
+                  }}
+                  disabled={respondMutation.isPending}
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" /> Send Response
+                </Button>
               </div>
             </div>
           )}

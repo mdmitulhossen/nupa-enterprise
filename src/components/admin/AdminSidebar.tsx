@@ -9,9 +9,7 @@ import {
   PenTool,
   Settings,
   ShoppingBag,
-  Truck,
-  User,
-  Wallet,
+  User
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -21,10 +19,10 @@ const mainNavItems = [
   { label: "Industries", path: "/admin/industries", icon: Grid2X2 },
   { label: "Products", path: "/admin/products", icon: ShoppingBag },
   { label: "Orders", path: "/admin/orders", icon: Package },
-  { label: "Payments", path: "/admin/payments", icon: Wallet },
+  // { label: "Payments", path: "/admin/payments", icon: Wallet },
   { label: "Quotes", path: "/admin/quotes", icon: MessageSquareQuote },
   { label: "CMS", path: "/admin/cms", icon: PenTool },
-  { label: "Delivery Management", path: "/admin/delivery", icon: Truck },
+  // { label: "Delivery Management", path: "/admin/delivery", icon: Truck },
 ];
 
 const otherNavItems = [
