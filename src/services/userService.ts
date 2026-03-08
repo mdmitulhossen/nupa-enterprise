@@ -1,9 +1,40 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getAxios } from "@/axios/generic-api-calls";
+import { getAxios, postAxios } from "@/axios/generic-api-calls";
+import { useAuthStore } from "@/store/authStore";
+import { useUserStore } from "@/store/userStore";
 import { useUiStore } from "@/store/useUiStore";
-import { PaginatedResponse } from "@/types/product";
+import { PaginatedResponse, SingleResponse } from "@/types/product";
 import { extractErrorMsg, formatResponse, logoutFunc } from "@/utils/commonUtils";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+
+// types/auth.types.ts
+export interface AuthUser {
+  id: string;
+  firstName: string;
+  lastName: string | null;
+  email: string;
+  role: string;
+  image: string | null;
+  phoneNumber: string | null;
+  dateOfBirth: string | null;
+  address: string | null;
+}
+
+export interface AuthTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: AuthUser;
+}
+
+export interface CreateSocialUserPayload {
+  name: string;
+  email: string;
+  image?: string;
+  provider: string;
+  privacyPolicyAccepted: boolean;
+}
 
 // types/user.types.ts
 export interface User {
@@ -78,4 +109,51 @@ export function useFetchUsers(
     queryKey: ["users", page, limit, searchTerm],
     enabled,
   });
+}
+
+export function useCreateSocialUser() {
+    const setLoading = useUiStore((s) => s.setLoading);
+        const authStore = useAuthStore();
+        const userStore = useUserStore();
+        const queryClient = useQueryClient();
+
+    return useMutation<SingleResponse<AuthTokenResponse>, unknown, CreateSocialUserPayload>({
+        mutationFn: async (payload) => {
+            const response = await postAxios<SingleResponse<AuthTokenResponse>,
+                CreateSocialUserPayload
+            >(`${USERS_ENDPOINT}/create-social-user`, payload);
+            return formatResponse(response);
+        },
+        onMutate: () => {
+            setLoading(true);
+        },
+        onSuccess: (data) => {
+            if (!data.success) {
+                toast.error(data.message || 'Failed to authenticate');
+                return;
+            }
+           authStore.setToken(data.data.accessToken);
+                       userStore.setUser({
+                           id: data.data.user.id,
+                           name: `${data.data.user.firstName} ${data.data.user.lastName}`,
+                           email: data.data.user.email,
+                           image: data.data.user.image,
+                           role: data.data.user.role as 'USER' | 'ADMIN'
+                       });
+                       toast.success(data.message || 'Login successful');
+            queryClient.invalidateQueries({ queryKey: ['profile'] });
+        },
+        onError: (err: unknown) => {
+            const msg = extractErrorMsg(err);
+            if ((err as any)?.response?.status === 401) {
+                logoutFunc(msg);
+            }
+            toast.error(msg);
+             setLoading(false);
+            return Promise.reject(err);
+        },
+        onSettled: () => {
+            setLoading(false);
+        },
+    });
 }

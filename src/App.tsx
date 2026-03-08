@@ -24,6 +24,8 @@ import TermsOfService from "./pages/TermsOfService";
 import Testimonials from "./pages/Testimonials";
 import TrackOrder from "./pages/TrackOrder";
 
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 // Admin Pages
 import { RequireAdmin } from "./components/auth/RequireAdmin";
 import AdminAddProduct from "./pages/admin/AddProduct";
@@ -57,6 +59,7 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
+  <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>  
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Sonner />
@@ -111,6 +114,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </GoogleOAuthProvider>
 );
 
 export default App;

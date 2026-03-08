@@ -35,14 +35,14 @@ export function useLogin() {
                 return;
             }
 
-            console.log(data, 'abc from login')
 
             authStore.setToken(data.data.accessToken);
             userStore.setUser({
                 id: data.data.user.id,
                 name: `${data.data.user.firstName} ${data.data.user.lastName}`,
                 email: data.data.user.email,
-                role: data.data.user.role as 'USER' | 'ADMIN'
+                role: data.data.user.role as 'USER' | 'ADMIN',
+                image: data.data.user.image,
             });
             toast.success(data.message || 'Login successful');
             queryClient.invalidateQueries({ queryKey: ['profile'] });

@@ -17,6 +17,7 @@ export interface ILoginResponse {
         lastName: string;
         email: string;
         role: string;
+        image?: string | null;
     }
   };
 }

@@ -3,7 +3,6 @@ import AuthButton from "@/components/auth/AuthButton";
 import AuthInput from "@/components/auth/AuthInput";
 import AuthLayout from "@/components/auth/AuthLayout";
 import SocialButtons from "@/components/auth/SocialButtons";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useLogin } from "@/services/authService";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -16,7 +15,7 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    agreeToTerms: false,
+    agreeToTerms: true,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -111,7 +110,7 @@ const Login = () => {
 
           <AuthButton type="submit" disabled={loginMutation.isPending}>Log In</AuthButton>
 
-          <div className="flex items-start gap-2">
+          {/* <div className="flex items-start gap-2">
             <Checkbox
               id="terms"
               checked={formData.agreeToTerms}
@@ -129,7 +128,7 @@ const Login = () => {
           </div>
           {errors.agreeToTerms && (
             <p className="text-xs text-destructive -mt-3">{errors.agreeToTerms}</p>
-          )}
+          )} */}
         </form>
 
         <SocialButtons />

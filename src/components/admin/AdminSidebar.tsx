@@ -7,7 +7,6 @@ import {
   MessageSquareQuote,
   Package,
   PenTool,
-  Settings,
   ShoppingBag,
   Star,
   User
@@ -29,9 +28,9 @@ const mainNavItems = [
 ];
 
 const otherNavItems = [
-  { label: "Home", path: "/", icon: Grid2X2 },
+  // { label: "Home", path: "/", icon: Grid2X2 },
   { label: "Profile", path: "/admin/profile", icon: User },
-  { label: "Settings", path: "/admin/settings", icon: Settings },
+  // { label: "Settings", path: "/admin/settings", icon: Settings },
 ];
 
 const AdminSidebar = () => {
@@ -54,7 +53,7 @@ const AdminSidebar = () => {
     <aside className="fixed left-0 top-0 h-screen w-60 bg-background border-r border-border flex flex-col z-50">
       {/* Logo */}
       <div className="p-6">
-        <Link to="/admin">
+        <Link to="/">
           <img src={logo} alt="NUPA Logo" className="h-10 w-auto" />
         </Link>
       </div>
