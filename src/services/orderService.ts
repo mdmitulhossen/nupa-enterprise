@@ -113,7 +113,7 @@ export interface AllOrdersParams {
   limit?: number;
   order_id?: string;
   userId?: string;
-  status?: OrderStatus;
+  orderStatus?: OrderStatus;
   paymentStatus?: PaymentStatus;
   startDate?: string;
   endDate?: string;
