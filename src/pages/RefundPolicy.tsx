@@ -1,99 +1,66 @@
 import MainLayout from "@/components/layout/MainLayout";
+import PolicyContent from "@/components/layout/PolicyContent";
 import Breadcrumb from "@/components/shared/Breadcrumb";
-import PolicySection from "@/components/shared/PolicySection";
 import CTASection from "@/components/shared/CTASection";
+import PageBanner from "@/components/shared/PageBanner";
+import { useFetchCms } from "@/services/CMSService";
+
+const defaultRefundPolicy = `
+<h2>Refund & Return Policy</h2>
+<p>Last updated: Feb 2026</p>
+<p>At <strong>Nupa Enterprise</strong>, we stand behind the quality of our storage solutions. We want you to be fully satisfied with your purchase. Please read our refund and return policy carefully before placing an order.</p>
+
+<h3>Eligibility for Returns</h3>
+<p>We accept returns or replacements under the following conditions:</p>
+<ul>
+  <li><strong>Manufacturing Defects:</strong> If a product arrives with a verified manufacturing defect, you are eligible for a replacement or full refund.</li>
+  <li><strong>Damaged in Transit:</strong> If products are damaged during delivery, please document the damage at the time of receipt and notify us within <strong>48 hours</strong> of delivery.</li>
+  <li><strong>Wrong Product Delivered:</strong> If you receive an incorrect product that does not match your confirmed order, we will arrange for a replacement at no additional cost.</li>
+</ul>
+
+<h3>Non-Returnable Items</h3>
+<ul>
+  <li>Custom-fabricated or made-to-order products are <strong>non-returnable</strong> unless there is a manufacturing defect.</li>
+  <li>Products that have been installed, assembled, or modified after delivery.</li>
+  <li>Items damaged due to misuse, improper installation (not carried out by our team), or overloading beyond specified capacity.</li>
+</ul>
+
+<h3>Refund Process</h3>
+<ul>
+  <li>To initiate a return or refund, contact us at <a href="mailto:info@nupaenterprise.com">info@nupaenterprise.com</a> or call <strong>+880-1700-000000</strong> within 7 days of delivery.</li>
+  <li>Provide your order number, a description of the issue, and supporting photographs.</li>
+  <li>Once your claim is reviewed and approved, refunds will be processed within <strong>7 business days</strong> via the original payment method or bank transfer.</li>
+  <li>For replacements, our team will coordinate delivery of the corrected product as soon as possible.</li>
+</ul>
+
+<h3>Cancellation Policy</h3>
+<ul>
+  <li>Standard (non-custom) orders may be cancelled before dispatch without any cancellation fee.</li>
+  <li>Custom orders can be cancelled within <strong>24 hours</strong> of order confirmation. After production begins, cancellations will incur a charge covering materials and labor costs incurred.</li>
+</ul>
+
+<h3>Need Help?</h3>
+<p>If you have any concerns about your order or need assistance, our customer support team is available Saturday–Thursday, 9:00 AM – 6:00 PM. Reach us at <a href="mailto:info@nupaenterprise.com">info@nupaenterprise.com</a> or <strong>+880-1700-000000</strong>.</p>
+`;
 
 const RefundPolicy = () => {
+  const { data: cmsResp } = useFetchCms(true);
+  const refundPolicy = cmsResp?.data?.refundPolicy ?? defaultRefundPolicy;
+
   return (
     <MainLayout>
+      <PageBanner
+        title="Refund & Return Policy"
+        subtitle="Our Commitment to Your Satisfaction"
+      />
       <div className="container mx-auto px-4">
-        <Breadcrumb items={[{ label: "Terms Of Use" }]} />
+        <Breadcrumb items={[{ label: "Refund Policy" }]} />
       </div>
-
-      <section className="py-8 lg:py-12">
+      <section className="py-12 lg:py-16">
         <div className="container mx-auto px-4 max-w-4xl">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Refund Policy</h1>
-          <p className="text-sm text-muted-foreground mb-8">Transparent & Fair Refund Guidelines</p>
-          
-          <p className="text-muted-foreground mb-8">
-            At Nupa Enterprise, customer satisfaction is important to us. This Refund Policy explains the conditions under which refunds may be issued for products purchased through our website or ordered via quotation.
-          </p>
-
-          <PolicySection number="1" title="Eligibility for Refunds">
-            <p>
-              Nupa Enterprise is a supplier of industrial storage shelves, warehouse racking systems, and supershop shelving solutions in Bangladesh. This website provides product information, quotation services, and selected online purchasing options.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="2" title="Non-Refundable Items">
-            <p>The following items are not eligible for refunds:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Customized or made-to-order storage systems</li>
-              <li>Products ordered through confirmed quotations</li>
-              <li>Products damaged due to misuse, improper installation, or handling</li>
-              <li>Normal wear and tear</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="3" title="Refund Request Timeline">
-            <p>To be eligible for a refund:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>You must notify us within 3 working days of receiving the product</li>
-              <li>Proof such as photos or videos may be required</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="4" title="Refund Process">
-            <p>Once your refund request is approved:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Our team will review the issue</li>
-              <li>The product may need to be returned (if applicable)</li>
-              <li>Refunds will be processed through the original payment method</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="5" title="Refund Method">
-            <p>For online purchases:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Refunds will be issued to the original payment method used during purchase</li>
-              <li>Processing time typically takes 7-14 working days after approval</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="6" title="Shipping & Handling Costs">
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Delivery and handling charges are non-refundable</li>
-              <li>Return shipping costs may be the responsibility of the customer unless the issue is caused by Nupa Enterprise</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="7" title="Cancellations">
-            <p className="font-semibold text-foreground">Online Purchases</p>
-            <p>Orders may be canceled before shipment. Once shipped, cancellation is not possible.</p>
-            <p className="font-semibold text-foreground mt-4">Quotation-Based Orders</p>
-            <p>Orders confirmed through quotation cannot be canceled or refunded once production or preparation has started.</p>
-          </PolicySection>
-
-          <PolicySection number="8" title="Exchange Policy">
-            <p>
-              Exchanges may be offered in place of refunds where applicable, depending on product availability and condition.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="9" title="Policy Updates">
-            <p>
-              Nupa Enterprise reserves the right to modify this Refund Policy at any time. Updates will be published on this page with a revised date.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="10" title="Contact Us">
-            <p>For refund-related inquiries, please contact:</p>
-            <p className="mt-2">✉ Email: sales@nupaenterprise.com</p>
-            <p>📞 Phone: 01739-748268</p>
-          </PolicySection>
+          <PolicyContent html={refundPolicy} />
         </div>
       </section>
-
       <CTASection />
     </MainLayout>
   );

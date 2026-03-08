@@ -1,11 +1,25 @@
-import { Phone, Mail, Clock, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFetchCms } from "@/services/CMSService";
+import { Clock, Mail, MessageSquare, Phone } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+const defaultContactInfo = {
+  phone: "+880 1234-567890",
+  email: "info@nupaenterprise.com",
+  businessHours: "Saturday – Thursday: 9:00 AM – 6:00 PM",
+};
 
 const CTASection = () => {
+  const navigate = useNavigate();
+  const { data: cmsResp } = useFetchCms(true);
+
+  const contactInfo = cmsResp?.data?.contactInfo ?? defaultContactInfo;
+
   return (
     <section className="bg-foreground text-background py-16 lg:py-20">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
+
           {/* Left Content */}
           <div>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
@@ -34,7 +48,11 @@ const CTASection = () => {
                 </div>
               </div>
             </div>
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-foreground">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/request-quote")}
+              className="border-primary text-primary hover:bg-primary hover:text-foreground"
+            >
               Request a Quote
             </Button>
           </div>
@@ -43,29 +61,38 @@ const CTASection = () => {
           <div className="bg-card text-card-foreground rounded-xl p-6 lg:p-8">
             <h3 className="text-xl font-semibold mb-6">Get in Touch</h3>
             <div className="space-y-4">
-              <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-primary" />
+              {contactInfo.phone && (
+                <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Phone className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Call Us</p>
+                    <p className="font-medium">{contactInfo.phone}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Call Us</p>
-                  <p className="font-medium">+880 1234-567890</p>
+              )}
+
+              {contactInfo.email && (
+                <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Email Us</p>
+                    <p className="font-medium">{contactInfo.email}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-primary" />
+              )}
+
+              {contactInfo.businessHours && (
+                <div className="text-sm text-muted-foreground bg-muted rounded-lg p-4">
+                  Business Hours: {contactInfo.businessHours}
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Email Us</p>
-                  <p className="font-medium">info@nupaenterprise.com</p>
-                </div>
-              </div>
-              <div className="text-sm text-muted-foreground bg-muted rounded-lg p-4">
-                Business Hours: Saturday - Thursday, 9:00 AM - 6:00 PM
-              </div>
+              )}
             </div>
           </div>
+
         </div>
       </div>
     </section>

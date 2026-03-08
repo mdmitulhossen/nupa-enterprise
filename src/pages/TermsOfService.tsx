@@ -1,122 +1,79 @@
 import MainLayout from "@/components/layout/MainLayout";
+import PolicyContent from "@/components/layout/PolicyContent";
 import Breadcrumb from "@/components/shared/Breadcrumb";
-import PolicySection from "@/components/shared/PolicySection";
 import CTASection from "@/components/shared/CTASection";
+import PageBanner from "@/components/shared/PageBanner";
+import { useFetchCms } from "@/services/CMSService";
+
+const defaultTermsOfService = `
+<h2>Terms of Service</h2>
+<p>Last updated: Feb 2026</p>
+<p>Welcome to <strong>Nupa Enterprise</strong>. By accessing our website or purchasing our products and services, you agree to be bound by the following Terms of Service. Please read them carefully before proceeding.</p>
+
+<h3>1. About Us</h3>
+<p>Nupa Enterprise is a storage solutions provider based in Dhaka, Bangladesh. We work closely with retailers, warehouse owners, factories, and offices to deliver storage solutions that match real operational needs — from off-the-shelf industrial racks to fully customized racking systems designed for long-term performance and growth.</p>
+
+<h3>2. Use of Our Website</h3>
+<ul>
+  <li>You must be at least 18 years of age or represent a registered business entity to place orders.</li>
+  <li>You agree to provide accurate and complete information when registering, placing orders, or requesting quotations.</li>
+  <li>You may not use our website for any unlawful purpose or in any way that could damage, disable, or impair our services.</li>
+</ul>
+
+<h3>3. Products & Orders</h3>
+<ul>
+  <li>Product descriptions, dimensions, and load capacities are provided to the best of our knowledge. For custom orders, final specifications will be confirmed in the quotation document.</li>
+  <li>All orders are subject to availability. We reserve the right to cancel or modify orders in case of stock unavailability or pricing errors.</li>
+  <li>Customized products are manufactured based on approved specifications and may not be returned unless there is a manufacturing defect.</li>
+</ul>
+
+<h3>4. Pricing & Payment</h3>
+<ul>
+  <li>Prices listed on our website are in Bangladeshi Taka (BDT) and are subject to change without prior notice.</li>
+  <li>Full or partial advance payment may be required depending on order value and product type.</li>
+  <li>Custom and bulk orders require a confirmed purchase order and advance payment before production begins.</li>
+</ul>
+
+<h3>5. Delivery</h3>
+<ul>
+  <li>Delivery timelines are estimates and may vary based on order complexity, location, and logistics conditions.</li>
+  <li>Risk of damage or loss passes to the customer upon delivery. We recommend inspecting goods upon receipt.</li>
+</ul>
+
+<h3>6. Installation Services</h3>
+<p>Where installation is included or requested, our technicians will carry out the work per agreed specifications. Any site-related requirements (power access, space clearance) are the customer's responsibility.</p>
+
+<h3>7. Intellectual Property</h3>
+<p>All content on our website, including images, product designs, and text, is the property of Nupa Enterprise. Unauthorized reproduction or use is strictly prohibited.</p>
+
+<h3>8. Limitation of Liability</h3>
+<p>Nupa Enterprise shall not be liable for any indirect, incidental, or consequential damages arising from the use of our products beyond the purchase value of the order in question.</p>
+
+<h3>9. Governing Law</h3>
+<p>These Terms of Service are governed by the laws of the People's Republic of Bangladesh. Any disputes shall be resolved under the jurisdiction of Dhaka courts.</p>
+
+<h3>10. Contact</h3>
+<p>For any questions about these terms, please reach out to us at <a href="mailto:info@nupaenterprise.com">info@nupaenterprise.com</a> or call <strong>+880-1700-000000</strong>.</p>
+`;
 
 const TermsOfService = () => {
+  const { data: cmsResp } = useFetchCms(true);
+  const termsOfService = cmsResp?.data?.termsOfService ?? defaultTermsOfService;
+
   return (
     <MainLayout>
+      <PageBanner
+        title="Terms of Service"
+        subtitle="Please Read These Terms Carefully Before Using Our Services"
+      />
       <div className="container mx-auto px-4">
-        <Breadcrumb items={[{ label: "Terms Of Use" }]} />
+        <Breadcrumb items={[{ label: "Terms of Service" }]} />
       </div>
-
-      <section className="py-8 lg:py-12">
+      <section className="py-12 lg:py-16">
         <div className="container mx-auto px-4 max-w-4xl">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Terms of Use</h1>
-          <p className="text-sm text-muted-foreground mb-8">Please Read These Terms Carefully Before Using Our Website</p>
-          
-          <p className="text-muted-foreground mb-8">
-            By accessing or using the Nupa Enterprise website, you agree to comply with and be bound by the following Terms of Use. If you do not agree with any part of these terms, please do not use this website.
-          </p>
-
-          <PolicySection number="1" title="About Nupa Enterprise">
-            <p>
-              Nupa Enterprise is a supplier of industrial storage shelves, warehouse racking systems, and supershop shelving solutions in Bangladesh. This website provides product information, quotation services, and selected online purchasing options.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="2" title="Use of the Website">
-            <p>You agree to use this website:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Only for lawful purposes</li>
-              <li>In a way that does not violate applicable laws or regulations</li>
-              <li>Without attempting to damage, disrupt, or interfere with the website's functionality</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="3" title="Product Information">
-            <p>We aim to ensure that all product descriptions, images, specifications, and prices are accurate. However:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Product images are for reference only</li>
-              <li>Specifications may vary based on customization</li>
-              <li>Prices may change without prior notice</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="4" title="Orders & Quotations">
-            <p className="font-semibold text-foreground">Online Purchases</p>
-            <p>Some products are available for direct purchase through the website. Orders are subject to availability and confirmation.</p>
-            <p className="font-semibold text-foreground mt-4">Quotation-Based Products</p>
-            <p>Certain products require custom quotation due to size, load capacity, or project requirements. Submitting a quotation request does not guarantee a final price until confirmed by our team.</p>
-          </PolicySection>
-
-          <PolicySection number="5" title="Payments">
-            <p>For online purchases:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Payments must be completed through approved payment methods</li>
-              <li>Orders will be processed only after payment confirmation</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="6" title="Delivery & Installation">
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Delivery timelines depend on product availability and location</li>
-              <li>Installation services, if applicable, will be agreed upon during quotation</li>
-              <li>Nupa Enterprise is not responsible for delays caused by external factors beyond our control</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="7" title="Intellectual Property">
-            <p>All content on this website, including:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Text</li>
-              <li>Images</li>
-              <li>Logos</li>
-              <li>Graphics</li>
-              <li>Design elements</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="8" title="User Submissions">
-            <p>
-              Any information submitted through contact forms, quotation requests, or emails must be accurate and lawful. You agree not to submit false, misleading, or harmful information.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="9" title="Limitation of Liability">
-            <p>Nupa Enterprise shall not be held liable for:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Any indirect or consequential damages</li>
-              <li>Business losses resulting from website use</li>
-              <li>Technical issues or temporary unavailability of the website</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="10" title="Third-Party Links">
-            <p>
-              Our website may include links to third-party websites for reference. Nupa Enterprise is not responsible for the content, policies, or practices of these external sites.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="11" title="Changes to Terms">
-            <p>
-              Nupa Enterprise reserves the right to update or modify these Terms of Use at any time. Continued use of the website after changes are posted indicates acceptance of the updated terms.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="12" title="Governing Law">
-            <p>
-              These Terms of Use are governed by the laws of Bangladesh. Any disputes shall be resolved under Bangladeshi jurisdiction.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="13" title="Nupa Enterprise">
-            <p>✉ Email: sales@nupaenterprise.com</p>
-            <p>📞 Phone: 01739-748268</p>
-          </PolicySection>
+          <PolicyContent html={termsOfService} />
         </div>
       </section>
-
       <CTASection />
     </MainLayout>
   );

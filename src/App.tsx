@@ -35,6 +35,7 @@ import AdminIndustries from "./pages/admin/Industries";
 
 
 import ScrollToTop from "./components/layout/ScrollToTop";
+import CMSPage from "./pages/admin/CMSPage";
 import ContactManagement from "./pages/admin/ContactManagement";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminDeliveryManagement from "./pages/admin/DeliveryManagement";
@@ -112,6 +113,7 @@ const App = () => (
             <Route path="/admin/users" element={<Users />} />
             <Route path="/admin/ratings" element={<Ratings />} />
             <Route path="/admin/contact" element={<ContactManagement />} />
+            <Route path="/admin/cms" element={<CMSPage />} />
           </Route>
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

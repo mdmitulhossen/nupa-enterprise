@@ -137,7 +137,7 @@ const Home = () => {
       </section>
 
       {/* Industries We Serve (Alternating) */}
-      <section className="py-16 lg:py-24 bg-background">
+      <section className="py-16 lg:py-12 bg-background">
         <div className="container mx-auto px-4">
           <SectionHeader
             title="Industries we serve"
@@ -225,7 +225,7 @@ const Home = () => {
       </section>
 
       {/* Shop by Category */}
-      <section className="py-16 lg:py-24 bg-muted">
+      <section className="py-16 lg:py-12 bg-muted">
         <div className="container mx-auto px-4">
           <SectionHeader
             title="Shop by Category"
@@ -255,7 +255,7 @@ const Home = () => {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 lg:py-24 bg-background">
+      <section className="py-16 lg:py-12 bg-background">
         <div className="container mx-auto px-4">
           <SectionHeader
             title="Featured Products"
@@ -275,7 +275,7 @@ const Home = () => {
       </section>
 
       {/* Why Nupa Enterprise */}
-      <section className="py-16 lg:py-24 bg-muted">
+      <section className="py-16 lg:py-12 bg-muted">
         <div className="container mx-auto px-4">
           <SectionHeader
             title="Why Nupa Enterprise"
@@ -296,7 +296,7 @@ const Home = () => {
       </section>
 
       {/* Industries We Serve Grid */}
-      <section className="py-16 lg:py-24 bg-background">
+      <section className="py-16 lg:py-12 bg-background">
         <div className="container mx-auto px-4">
           <SectionHeader
             title="Industries We Serve"
@@ -322,7 +322,7 @@ const Home = () => {
       {/* Testimonials */}
       {
         ratingsResponse && ratingsResponse?.data && (
-          <section className="py-16 lg:py-24 bg-muted">
+          <section className="py-16 lg:py-12 bg-muted">
         <div className="container mx-auto px-4">
           <SectionHeader
             title="Client Testimonials"

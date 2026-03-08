@@ -104,7 +104,7 @@ const Header = () => {
               <div ref={profileRef} className="relative">
                 <button
                   onClick={() => setProfileOpen((s) => !s)}
-                  className="hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 text-primary font-medium hover:brightness-95"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 text-primary font-medium hover:brightness-95"
                   aria-expanded={profileOpen}
                   aria-label="Profile menu"
                 >
@@ -183,9 +183,13 @@ const Header = () => {
                 <Button variant="default" size="sm" className="flex-1">
                   Request a Quote
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1" asChild>
+                {
+                  !user ? (
+                    <Button variant="outline" size="sm" className="flex-1" asChild>
                   <Link to="/signup">Register</Link>
-                </Button>
+                </Button> ) :null
+                }
+                
               </div>
             </div>
           </nav>

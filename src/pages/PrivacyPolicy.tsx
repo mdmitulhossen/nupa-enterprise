@@ -1,124 +1,65 @@
 import MainLayout from "@/components/layout/MainLayout";
+import PolicyContent from "@/components/layout/PolicyContent";
 import Breadcrumb from "@/components/shared/Breadcrumb";
-import PolicySection from "@/components/shared/PolicySection";
 import CTASection from "@/components/shared/CTASection";
+import PageBanner from "@/components/shared/PageBanner";
+import { useFetchCms } from "@/services/CMSService";
+
+const defaultPrivacyPolicy = `
+<h2>Privacy Policy</h2>
+<p>Last updated: Feb 2026</p>
+<p>At <strong>Nupa Enterprise</strong>, we are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and safeguard your data when you visit our website or place an order with us.</p>
+
+<h3>Information We Collect</h3>
+<p>We may collect the following types of information:</p>
+<ul>
+  <li><strong>Personal Identification Information:</strong> Name, email address, phone number, and delivery address when you place an order, request a quotation, or contact us.</li>
+  <li><strong>Business Information:</strong> Company name, business type, and operational requirements for customized storage solutions.</li>
+  <li><strong>Usage Data:</strong> Pages visited, time spent on site, and browsing behavior to improve our services.</li>
+  <li><strong>Payment Information:</strong> We do not store payment card details. All transactions are processed through secure, certified payment gateways.</li>
+</ul>
+
+<h3>How We Use Your Information</h3>
+<ul>
+  <li>To process and fulfill your orders or quotation requests.</li>
+  <li>To communicate with you about your order status, delivery, or installation schedule.</li>
+  <li>To provide after-sales support and respond to inquiries.</li>
+  <li>To send relevant product updates, promotions, or service announcements (you may opt out at any time).</li>
+  <li>To improve our website experience and product offerings.</li>
+</ul>
+
+<h3>Data Sharing</h3>
+<p>We do not sell, trade, or rent your personal information to third parties. We may share data only with trusted logistics and installation partners strictly for the purpose of fulfilling your order.</p>
+
+<h3>Data Security</h3>
+<p>We implement industry-standard security measures to protect your data from unauthorized access, alteration, or disclosure. However, no method of internet transmission is 100% secure, and we encourage you to contact us directly if you have any concerns.</p>
+
+<h3>Your Rights</h3>
+<p>You have the right to access, update, or request deletion of your personal data at any time. To exercise these rights, contact us at <a href="mailto:info@nupaenterprise.com">info@nupaenterprise.com</a>.</p>
+
+<h3>Changes to This Policy</h3>
+<p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with a revised date. We encourage you to review this policy periodically.</p>
+<p>If you have any questions regarding this policy, please contact us at <a href="mailto:info@nupaenterprise.com">info@nupaenterprise.com</a>.</p>
+`;
 
 const PrivacyPolicy = () => {
+  const { data: cmsResp } = useFetchCms(true);
+  const privacyPolicy = cmsResp?.data?.privacyPolicy ?? defaultPrivacyPolicy;
+
   return (
     <MainLayout>
+      <PageBanner
+        title="Privacy Policy"
+        subtitle="How We Collect, Use, and Protect Your Information"
+      />
       <div className="container mx-auto px-4">
         <Breadcrumb items={[{ label: "Privacy Policy" }]} />
       </div>
-
-      <section className="py-8 lg:py-12">
+      <section className="py-12 lg:py-16">
         <div className="container mx-auto px-4 max-w-4xl">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Privacy Policy</h1>
-          <p className="text-sm text-muted-foreground mb-8">Your Privacy Matters to Nupa Enterprise</p>
-          
-          <p className="text-muted-foreground mb-8">
-            Nupa Enterprise respects your privacy and is committed to protecting the personal information you share with us. This Privacy Policy explains how we collect, use, store, and protect your information when you visit our website or communicate with us.
-          </p>
-
-          <PolicySection number="1" title="Information We Collect">
-            <p>We may collect the following types of information:</p>
-            <p className="font-semibold mt-4 text-foreground">Personal Information</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Name</li>
-              <li>Phone number</li>
-              <li>Email address</li>
-              <li>Company name</li>
-              <li>Business address</li>
-            </ol>
-            <p className="mt-2">This information is collected when you:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Request a quote</li>
-              <li>Contact us via forms, email, or phone</li>
-              <li>Place an order through the website</li>
-            </ol>
-            <p className="font-semibold mt-4 text-foreground">Non-Personal Information</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Browser type and device information</li>
-              <li>Pages visited on our website</li>
-              <li>Time spent on pages</li>
-              <li>IP address (for analytics and security)</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="2" title="How We Use Your Information">
-            <p>We use collected information to:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Respond to inquiries and quotation requests</li>
-              <li>Process orders and customer communication</li>
-              <li>Improve website performance and user experience</li>
-              <li>Understand customer needs and industry demand</li>
-              <li>Maintain internal business records</li>
-            </ol>
-          </PolicySection>
-
-          <PolicySection number="3" title="Product Orders & Quotations">
-            <p>
-              Some products on our website are available for direct purchase, while others require a custom quotation. Information provided during these processes is used strictly for order fulfillment, pricing, and customer communication.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="4" title="Cookies & Tracking Technologies">
-            <p>Our website may use cookies to:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Enhance browsing experience</li>
-              <li>Analyze website traffic</li>
-              <li>Improve content and layout</li>
-            </ol>
-            <p className="mt-2">You can choose to disable cookies through your browser settings, though this may affect some website features.</p>
-          </PolicySection>
-
-          <PolicySection number="5" title="Data Protection & Security">
-            <p>
-              We take appropriate technical and organizational measures to protect your personal data against unauthorized access, misuse, or disclosure. However, no online system is 100% secure. We continuously work to maintain strong security standards.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="6" title="Sharing of Information">
-            <p>We may share your information only when necessary:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>With service providers involved in delivery or communication</li>
-              <li>When required by law or legal authorities</li>
-            </ol>
-            <p className="mt-2">We never share personal data for marketing purposes without consent.</p>
-          </PolicySection>
-
-          <PolicySection number="7" title="Third-Party Links">
-            <p>
-              Our website may contain links to third-party websites. Nupa Enterprise is not responsible for the privacy practices or content of external sites.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="8" title="Your Rights">
-            <p>You have the right to:</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>Request access to your personal information</li>
-              <li>Request correction of inaccurate data</li>
-              <li>Request deletion of your personal information (where applicable)</li>
-            </ol>
-            <p className="mt-2">To exercise these rights, please contact us directly.</p>
-          </PolicySection>
-
-          <PolicySection number="9" title="Updates to This Policy">
-            <p>
-              Nupa Enterprise may update this Privacy Policy from time to time. Any changes will be reflected on this page with an updated revision date.
-            </p>
-          </PolicySection>
-
-          <PolicySection number="10" title="Contact Us">
-            <p>If you have any questions about this Privacy Policy or how we handle your data, please contact us:</p>
-            <p className="font-semibold text-foreground mt-4">Nupa Enterprise</p>
-            <ol className="list-decimal list-inside ml-2 space-y-1">
-              <li>✉ Email: sales@nupaenterprise.com</li>
-              <li>📞 Phone: 01739-748268</li>
-            </ol>
-          </PolicySection>
+          <PolicyContent html={privacyPolicy} />
         </div>
       </section>
-
       <CTASection />
     </MainLayout>
   );

@@ -194,11 +194,13 @@ const Products = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {isLoading ? (
-                <div className="col-span-full text-center py-16 text-muted-foreground w-6 h-6 animate-spin">
-                  <Loader2 className="w-6 h-6 mx-auto" />
+              {
+              isLoading ? (
+                <div className="col-span-full text-center py-16 text-muted-foreground w-full flex justify-center">
+                  <Loader2 className="w-6 h-6 mx-auto animate-spin" />
                 </div>
-              ) : !productsData?.data?.length ? (
+              ) :
+               !productsData?.data?.length ? (
                 <div className="col-span-full text-center py-16">
                   <div className="text-muted-foreground">
                     <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />

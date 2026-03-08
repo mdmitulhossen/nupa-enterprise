@@ -559,7 +559,7 @@ const RequestQuote = () => {
 
             {/* ── RIGHT: Quote Builder ─────────────────────────────────── */}
             <div className="xl:w-[420px] flex-shrink-0">
-              <div className="sticky top-6 space-y-4">
+              <div className="sticky top-24 space-y-4">
 
                 {/* Selected items card */}
                 <div className="border border-border rounded-2xl p-5">
