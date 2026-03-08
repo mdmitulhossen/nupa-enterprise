@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import EmptyState from "@/components/layout/EmptyState";
 import MainLayout from "@/components/layout/MainLayout";
 import Breadcrumb from "@/components/shared/Breadcrumb";
@@ -318,6 +319,7 @@ const RequestQuote = () => {
     page: 1,
     limit: 40,
     searchTerm: debouncedSearch || undefined,
+    productType: ["ALL","QUOTE_ONLY"],
   });
 
   const products = data?.data ?? [];

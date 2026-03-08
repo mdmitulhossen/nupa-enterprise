@@ -83,6 +83,7 @@ const Products = () => {
         maxPrice:    priceRange[1] < 300000  ? priceRange[1] : undefined,
         sortBy:      sortBy !== 'default'    ? sortBy        : undefined,
         sortOrder:   sortBy === 'price-high' ? 'desc'        : 'asc',
+        productType: ["ALL","BUY_ONLINE"],
       });
     }, 300);
 

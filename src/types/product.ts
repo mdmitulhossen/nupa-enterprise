@@ -92,7 +92,7 @@ export interface ProductListParams {
     categoryId?: string | string[];
     industryId?: string | string[];
     status?: string | string[]; // e.g. IN_STOCK,UPCOMING
-    productType?: string;
+    productType?: string | string[]; // e.g. BUY_ONLINE,QUOTATION
     minPrice?: number | string;
     maxPrice?: number | string;
     sortBy?: string;
