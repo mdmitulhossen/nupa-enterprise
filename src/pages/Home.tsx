@@ -1,11 +1,16 @@
 import MainLayout from "@/components/layout/MainLayout";
+import ProductCard from "@/components/products/ProductCard";
 import CTASection from "@/components/shared/CTASection";
 import SectionHeader from "@/components/shared/SectionHeader";
 import { Button } from "@/components/ui/button";
 // import { demoProducts } from "@/data/products";
 import { useTitle } from '@/hooks/useTitle';
+import { useFetchCategories } from "@/services/categoryService";
+import { useFetchProducts } from "@/services/productService";
+import { Category } from "@/types/category";
 import { CheckCircle, Headphones, Search, Shield, Truck } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const categories = [
   { name: "Office Racks/Shelves", image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop", link: "/products?cat=office" },
@@ -38,6 +43,28 @@ const features = [
 
 const Home = () => {
   useTitle("NUPA Enterprise - Home");
+
+  const navigate = useNavigate();
+  const [homeSearch, setHomeSearch] = useState("");
+  const [homeCat, setHomeCat] = useState("");
+
+   const { data: cats} = useFetchCategories({ limit: 100 });
+     const { data: productsData } = useFetchProducts({ limit: 6, isFeature: true });
+
+
+  const submitSearch = () => {
+    const params = new URLSearchParams();
+    if (homeSearch.trim()) params.set("searchTerm", homeSearch.trim());
+    if (homeCat) params.set("cat", homeCat);
+    navigate(`/products?${params.toString()}`);
+  };
+
+  const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") submitSearch();
+  };
+
+  const categoryData = cats?.data ? cats?.data : categories
+
   return (
     <MainLayout>
       {/* Hero Section */}
@@ -63,24 +90,32 @@ const Home = () => {
           </div>
 
           {/* Search Bar */}
-          <div className="mt-12 max-w-3xl mx-auto bg-background rounded-lg p-2 flex flex-col sm:flex-row gap-2">
-            <div className="flex-1 flex items-center gap-2 px-4">
-              <Search className="w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search for products..."
-                className="w-full py-2 bg-transparent outline-none text-foreground"
-              />
-            </div>
-            <select className="px-4 py-2 bg-muted rounded-lg text-foreground text-sm outline-none">
-              <option>All Categories</option>
-              <option>Warehouse Racks</option>
-              <option>Supershop Shelving</option>
-              <option>Office Storage</option>
-            </select>
-            <Button>Search</Button>
-          </div>
-
+ <div className="mt-12 max-w-3xl mx-auto bg-background rounded-lg p-2 flex flex-col sm:flex-row gap-2">
+        <div className="flex-1 flex items-center gap-2 px-4">
+          <Search className="w-5 h-5 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search for products..."
+            className="w-full py-2 bg-transparent outline-none text-foreground"
+            value={homeSearch}
+            onChange={(e) => setHomeSearch(e.target.value)}
+            onKeyDown={onKey}
+          />
+        </div>
+        <select
+          className="px-4 py-2 bg-muted rounded-lg text-foreground text-sm outline-none"
+          value={homeCat}
+          onChange={(e) => setHomeCat(e.target.value)}
+        >
+          <option value="">All Categories</option>
+          {(cats?.data)?.map((c: Category) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+        <Button onClick={submitSearch}>Search</Button>
+      </div>
           {/* Feature Icons */}
           <div className="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
             {features.map((feature, index) => (
@@ -191,11 +226,11 @@ const Home = () => {
             title="Shop by Category"
             subtitle="Browse our collection of industrial storage solutions organized by category"
           />
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {categories.map((cat, index) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            {categoryData?.map((cat, index) => (
               <Link
                 key={index}
-                to={cat.link}
+                to={'/products?cat=' + cat.id}
                 className="group bg-card rounded-xl overflow-hidden border border-border hover:shadow-lg transition-shadow"
               >
                 <div className="aspect-square overflow-hidden">
@@ -215,14 +250,14 @@ const Home = () => {
       </section>
 
       {/* Featured Products */}
-      {/* <section className="py-16 lg:py-24 bg-background">
+      <section className="py-16 lg:py-24 bg-background">
         <div className="container mx-auto px-4">
           <SectionHeader
             title="Featured Products"
             subtitle="Browse our bestselling storage and shelving solutions"
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {demoProducts.slice(0, 6).map((product) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            {productsData?.data?.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
@@ -232,7 +267,7 @@ const Home = () => {
             </Button>
           </div>
         </div>
-      </section> */}
+      </section>
 
       {/* Why Nupa Enterprise */}
       <section className="py-16 lg:py-24 bg-muted">

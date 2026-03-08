@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,7 +7,7 @@ import { useEffect, useState } from "react";
 interface CategoryFormProps {
     initialName?: string;
     initialImage?: string;
-    onSubmit: (name: string, image: File | null) => void;
+    onSubmit: (name: string, image: File | null | string) => void;
     isPending: boolean;
     submitLabel: string;
     title: string;
@@ -23,7 +24,7 @@ const CategoryForm = ({
     subtitle,
 }: CategoryFormProps) => {
     const [name, setName] = useState(initialName);
-    const [image, setImage] = useState<File | null>(null);
+    const [image, setImage] = useState<File | null | string>(null);
 
     useEffect(() => {
         setName(initialName);
@@ -32,7 +33,7 @@ const CategoryForm = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!name.trim()) return;
-        onSubmit(name, image);
+        onSubmit(name, image as File | null | string);
     };
 
     return (
@@ -50,6 +51,17 @@ const CategoryForm = ({
                         className="w-full mt-2"
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Enter category name"
+                        required
+                    />
+                </div>
+                <div>
+                    <Label htmlFor="image">Category Image</Label>
+                    <Input
+                        id="image"
+                        value={image as any}
+                        className="w-full mt-2"
+                        onChange={(e) => setImage(e.target.value)}
+                        placeholder="Enter category image URL"
                         required
                     />
                 </div>

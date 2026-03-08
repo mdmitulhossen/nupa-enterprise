@@ -21,14 +21,14 @@ const CategoryModal = ({ isOpen, onClose, category, mode }: CategoryModalProps) 
     const createCategoryMutation = useCreateCategory();
     const updateCategoryMutation = useUpdateCategory();
 
-    const handleSubmit = async (name: string, image: File | null) => {
-        let payload: { name: string; image?: File } | FormData = { name };
-        if (image) {
-            const formData = new FormData();
-            formData.append("name", name);
-            formData.append("image", image);
-            payload = formData;
-        }
+    const handleSubmit = async (name: string, image: File | null | string) => {
+        const payload: { name: string; image?: File | string } | FormData = { name ,image};
+        // if (image) {
+        //     const formData = new FormData();
+        //     formData.append("name", name);
+        //     formData.append("image", image);
+        //     payload = formData;
+        // }
 
         try {
             if (mode === "add") {

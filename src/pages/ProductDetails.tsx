@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useFetchProduct } from "@/services/productService";
 import { useCartStore } from "@/store/cartStore";
 import { Product } from "@/types/product";
+import { formatBDT, getDiscountedPrice, hasValidOffer } from "@/utils/formatDiscountPrice";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -99,6 +100,12 @@ const ProductDetails = () => {
     navigate("/delivery");
   };
 
+    const firstVariation = product?.productVariations?.[0];
+  const originalPrice  = firstVariation?.price ?? 0;
+  const finalPrice     = firstVariation ? getDiscountedPrice(originalPrice, product?.offer) : 0;
+  const showOffer      = hasValidOffer(product?.offer) && !!firstVariation;
+
+
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-6">
@@ -120,22 +127,21 @@ const ProductDetails = () => {
           {/* Details */}
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold mb-2">{product?.name || "Product"}</h1>
-            <div className="flex items-baseline gap-2 mb-2">
+                    <div className="flex items-baseline gap-2 mb-2">
               <span className="text-muted-foreground">Starting from</span>
-              {product?.productVariations?.[0]?.price != null && (
+              {firstVariation && (
                 <>
                   <span className="text-xl font-bold">
-                    BDT{" "}
-                    {product.offer
-                      ? (
-                          product.productVariations![0].price *
-                          (1 - product.offer / 100)
-                        ).toLocaleString()
-                      : product.productVariations![0].price.toLocaleString()}
+                    {formatBDT(finalPrice)}
                   </span>
-                  {product.offer && product.offer !== 0 && (
-                    <span className="text-muted-foreground line-through">
-                      BDT {product.productVariations![0].price.toLocaleString()}
+                  {showOffer && (
+                    <span className="text-muted-foreground line-through text-sm">
+                      {formatBDT(originalPrice)}
+                    </span>
+                  )}
+                  {showOffer && (
+                    <span className="text-xs text-green-600 font-medium">
+                      -{product.offer}%
                     </span>
                   )}
                 </>
@@ -169,12 +175,12 @@ const ProductDetails = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-4 mt-6">
-              <Button variant="outline" className="flex-1" onClick={handleAddToCart}>
+              <Button className="flex-1" onClick={handleAddToCart}>
                 Add to Cart
               </Button>
-              <Button className="flex-1" onClick={handleBuyNow}>
+              {/* <Button className="flex-1" onClick={handleBuyNow}>
                 Buy Now
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>

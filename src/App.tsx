@@ -34,6 +34,7 @@ import AdminCategories from "./pages/admin/Categories";
 import AdminIndustries from "./pages/admin/Industries";
 
 
+import ScrollToTop from "./components/layout/ScrollToTop";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminDeliveryManagement from "./pages/admin/DeliveryManagement";
 import AdminOrderDetails from "./pages/admin/OrderDetails";
@@ -65,6 +66,7 @@ const App = () => (
     <TooltipProvider>
       <Sonner />
       <BrowserRouter>
+       <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />

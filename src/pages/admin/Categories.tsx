@@ -71,7 +71,9 @@ const Categories = () => {
         {
             header: "Image",
             accessor: (row) => row.image ? (
-                <img src={row.image} alt={row.name} className="w-12 h-12 object-cover rounded" />
+                <div className="flex justify-center">
+                    <img src={row.image} alt={row.name} className="w-12 h-12 object-cover rounded" />
+                </div>
             ) : (
                 <span className="text-muted-foreground">No image</span>
             ),
