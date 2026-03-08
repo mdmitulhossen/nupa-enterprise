@@ -53,6 +53,16 @@ export interface User {
   status: UserStatus;
 }
 
+export interface CreateUserPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  // phoneNumber?: string;
+  // address?: string;
+  privacyPolicyAccepted: boolean;
+}
+
 export enum UserStatus {
   ACTIVE = "ACTIVE",
   SUSPENDED = "SUSPENDED",
@@ -150,6 +160,44 @@ export function useCreateSocialUser() {
             }
             toast.error(msg);
              setLoading(false);
+            return Promise.reject(err);
+        },
+        onSettled: () => {
+            setLoading(false);
+        },
+    });
+}
+
+// services/authService.ts — এ add করো
+export function useCreateUser() {
+    const setLoading = useUiStore((s) => s.setLoading);
+
+    return useMutation<SingleResponse<AuthTokenResponse>, unknown, CreateUserPayload>({
+        mutationFn: async (payload) => {
+            const response = await postAxios<SingleResponse<AuthTokenResponse>, CreateUserPayload>(
+                `${USERS_ENDPOINT}/create-user`,
+                payload
+            );
+            return formatResponse(response);
+        },
+        onMutate: () => {
+            setLoading(true);
+        },
+        onSuccess: (data) => {
+            if (!data.success) {
+                toast.error(data.message || 'Failed to create account');
+                return;
+            }
+            toast.success(data.message || 'Account created successfully');
+            window.location.href = '/login';
+        },
+        onError: (err: unknown) => {
+            const msg = extractErrorMsg(err);
+            if ((err as any)?.response?.status === 401) {
+                logoutFunc(msg);
+            }
+            toast.error(msg);
+            setLoading(false);
             return Promise.reject(err);
         },
         onSettled: () => {

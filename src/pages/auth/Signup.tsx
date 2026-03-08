@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import AuthLayout from "@/components/auth/AuthLayout";
-import AuthInput from "@/components/auth/AuthInput";
 import AuthButton from "@/components/auth/AuthButton";
+import AuthInput from "@/components/auth/AuthInput";
+import AuthLayout from "@/components/auth/AuthLayout";
 import SocialButtons from "@/components/auth/SocialButtons";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CreateUserPayload, useCreateUser } from "@/services/userService";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,8 @@ const Signup = () => {
     agreeToTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const createUser = useCreateUser();
 
   const handleChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -48,12 +51,21 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      console.log("Signup:", formData);
-      // Demo: Navigate to verification or login
-    }
+    if (!validate()) return;
+
+    const payload: CreateUserPayload = {
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
+      email: formData.email.trim(),
+      password: formData.password,
+      privacyPolicyAccepted: formData.agreeToTerms,
+    };
+
+
+      await createUser.mutateAsync(payload);
+   
   };
 
   return (
