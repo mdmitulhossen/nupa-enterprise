@@ -72,7 +72,7 @@ const Header = () => {
           {/* Right Actions */}
           <div className="flex items-center gap-3">
             <Button variant="default" size="sm" className="hidden sm:inline-flex">
-              Request a Quote
+              <Link to="/request-quote">Request a Quote</Link>
             </Button>
             {!user && (
               <Button variant="outline" size="sm" className="hidden sm:inline-flex" asChild>
@@ -120,11 +120,18 @@ const Header = () => {
                       Profile
                     </Link>
                     <Link
-                      to="/orders"
+                      to="/track-order"
                       onClick={() => setProfileOpen(false)}
                       className="block px-4 py-2 text-sm text-foreground hover:bg-muted"
                     >
                       My Orders
+                    </Link>
+                    <Link
+                      to="/track-quote"
+                      onClick={() => setProfileOpen(false)}
+                      className="block px-4 py-2 text-sm text-foreground hover:bg-muted"
+                    >
+                      My Requested Quotes
                     </Link>
                     <button
                       onClick={handleLogout}

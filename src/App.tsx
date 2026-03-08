@@ -40,6 +40,8 @@ import AdminPayments from "./pages/admin/Payments";
 import AdminProducts from "./pages/admin/Products";
 import AdminProfile from "./pages/admin/Profile";
 import AdminQuotes from "./pages/admin/Quotes";
+import RequestQuote from "./pages/RequestQuote";
+import TrackQuote from "./pages/TrackQuote";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +62,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/request-quote" element={<RequestQuote />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/delivery" element={<DeliveryInformation />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -73,6 +76,7 @@ const App = () => (
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/track-order" element={<TrackOrder />} />
+          <Route path="/track-quote" element={<TrackQuote />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
