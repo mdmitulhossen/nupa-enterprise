@@ -112,6 +112,15 @@ const Header = () => {
                 </button>
                 {profileOpen && (
                   <div className="absolute right-0 mt-2 w-44 bg-card border border-border rounded-md shadow-md py-1 z-50">
+               {
+                user?.role === 'ADMIN' && (     <Link
+                      to="/admin"
+                      onClick={() => setProfileOpen(false)}
+                      className="block px-4 py-2 text-sm text-foreground hover:bg-muted"
+                    >
+                      Dashboard
+                    </Link>)
+               }
                     <Link
                       to="/profile"
                       onClick={() => setProfileOpen(false)}

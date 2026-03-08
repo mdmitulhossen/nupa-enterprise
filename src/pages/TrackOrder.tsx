@@ -2,6 +2,7 @@ import DeleteConfirmationDialog from "@/components/admin/DeleteConfirmationDialo
 import EmptyState from "@/components/layout/EmptyState";
 import MainLayout from "@/components/layout/MainLayout";
 import CancelOrderModal from "@/components/modal/CancelOrderModal";
+import CreateRatingModal from "@/components/modal/CreateRatingModal";
 import OrderDetailsModal from "@/components/modal/OrderDetailsModal";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import CTASection from "@/components/shared/CTASection";
@@ -24,6 +25,7 @@ import {
   Package,
   PackageOpen,
   Phone,
+  Star,
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
@@ -97,10 +99,12 @@ const OrderRow = ({
   order,
   onViewDetails,
   onCancelRequest,
+  onLeaveFeedback,
 }: {
   order: Order;
   onViewDetails: (order: Order) => void;
   onCancelRequest: (order: Order) => void;
+  onLeaveFeedback: (order: Order) => void;
 }) => {
   const badge = orderStatusBadge[order.orderStatus];
   const isOngoing = ONGOING_STATUSES.includes(order.orderStatus);
@@ -186,6 +190,15 @@ const OrderRow = ({
         >
           📄 View Details
         </Button>
+       <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 text-xs h-8 bg-yellow-600"
+          onClick={() => onLeaveFeedback?.(order)}
+        >
+          <Star className="w-3.5 h-3.5" />
+         Leave Feedback
+        </Button>
       </div>
     </div>
   );
@@ -238,6 +251,7 @@ const TrackOrder = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [cancelModalOrder, setCancelModalOrder] = useState<Order | null>(null);
   const [pendingCancel, setPendingCancel] = useState<CancelState | null>(null);
+  const [ratingProduct, setRatingProduct] = useState<{ id: string; name?: string } | null>(null);
 
   const { data, isLoading } = useFetchMyOrders({ page, limit: 50 });
   const cancelMutation = useCancelOrder();
@@ -256,6 +270,12 @@ const TrackOrder = () => {
     if (!cancelModalOrder) return;
     setPendingCancel({ order: cancelModalOrder, reason });
     setCancelModalOrder(null);
+  };
+
+    const handleLeaveFeedback = (order: Order) => {
+    const firstItem = order.orderItems?.[0];
+    if (!firstItem) return;
+    setRatingProduct({ id: firstItem.product.id, name: firstItem.product.name });
   };
 
   const handleConfirmCancel = async () => {
@@ -377,12 +397,13 @@ const TrackOrder = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {activeOrders.map((order) => (
+                {activeOrders.map((order) => (
                     <OrderRow
                       key={order.id}
                       order={order}
                       onViewDetails={setSelectedOrder}
                       onCancelRequest={handleCancelRequest}
+                      onLeaveFeedback={handleLeaveFeedback}
                     />
                   ))}
                 </div>
@@ -421,6 +442,14 @@ const TrackOrder = () => {
         confirmText="Yes, Cancel Order"
         cancelText="Go Back"
         isLoading={cancelMutation.isPending}
+      />
+
+{/* create rating modal */}
+      <CreateRatingModal
+        isOpen={!!ratingProduct}
+        onClose={() => setRatingProduct(null)}
+        productId={ratingProduct?.id}
+        productName={ratingProduct?.name}
       />
     </MainLayout>
   );

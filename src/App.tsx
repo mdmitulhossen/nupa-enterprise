@@ -40,6 +40,8 @@ import AdminPayments from "./pages/admin/Payments";
 import AdminProducts from "./pages/admin/Products";
 import AdminProfile from "./pages/admin/Profile";
 import AdminQuotes from "./pages/admin/Quotes";
+import Ratings from "./pages/admin/Ratings";
+import Users from "./pages/admin/Users";
 import RequestQuote from "./pages/RequestQuote";
 import TrackQuote from "./pages/TrackQuote";
 
@@ -99,6 +101,8 @@ const App = () => (
             <Route path="/admin/quotes" element={<AdminQuotes />} />
             <Route path="/admin/delivery" element={<AdminDeliveryManagement />} />
             <Route path="/admin/profile" element={<AdminProfile />} />
+            <Route path="/admin/users" element={<Users />} />
+            <Route path="/admin/ratings" element={<Ratings />} />
           </Route>
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
