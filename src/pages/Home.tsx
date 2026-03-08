@@ -86,7 +86,7 @@ const Home = () => {
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               Industrial Storage & Shelving Solutions Built for Performance
             </h1>
-            <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
+            <p className="text-white mb-8 max-w-xl mx-auto">
               Premium quality storage systems for warehouses, supershops, and industrial facilities across Bangladesh.
             </p>
             <Button size="lg" asChild>
@@ -128,7 +128,7 @@ const Home = () => {
                 <feature.icon className="w-6 h-6 text-primary flex-shrink-0" />
                 <div>
                   <p className="font-medium text-sm">{feature.title}</p>
-                  <p className="text-xs text-muted-foreground">{feature.desc}</p>
+                  <p className="text-xs text-gray-300">{feature.desc}</p>
                 </div>
               </div>
             ))}

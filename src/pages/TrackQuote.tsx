@@ -8,31 +8,32 @@ import PageBanner from "@/components/shared/PageBanner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { useFetchCms } from "@/services/CMSService";
 import { AccountInfo } from "@/services/orderService";
 import {
-    AcceptQuotePayload,
-    Quote,
-    QuoteStatus,
-    useAcceptQuote,
-    useCancelQuote,
-    useFetchMyQuotes,
+  AcceptQuotePayload,
+  Quote,
+  QuoteStatus,
+  useAcceptQuote,
+  useCancelQuote,
+  useFetchMyQuotes,
 } from "@/services/quoteService";
 import { ShippingAddress } from "@/types/product";
 import { format } from "date-fns";
 import {
-    AlertCircle,
-    CheckCircle2,
-    ClipboardList,
-    FileText,
-    History,
-    Mail,
-    MapPin,
-    MessageSquare,
-    Package,
-    Phone,
-    Upload,
-    X,
-    XCircle,
+  AlertCircle,
+  CheckCircle2,
+  ClipboardList,
+  FileText,
+  History,
+  Mail,
+  MapPin,
+  MessageSquare,
+  Package,
+  Phone,
+  Upload,
+  X,
+  XCircle,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -618,6 +619,10 @@ const QuoteRow = ({
   const hasResponse = !!quote.adminResponse;
   const canAccept = quote.status === QuoteStatus.RESPONDED && !!quote.quotedPrice;
 
+  const { data: cmsResp } = useFetchCms(true);
+const phone = cmsResp?.data?.contactInfo?.phone ?? "+8801739748268";
+const email = cmsResp?.data?.contactInfo?.email ?? "sales@nupaenterprise.com";
+
   return (
     <div className="border border-border rounded-xl p-5 hover:border-primary/30 hover:shadow-sm transition-all space-y-4">
       {/* Top row */}
@@ -707,14 +712,19 @@ const QuoteRow = ({
       <div className="flex flex-wrap gap-2">
         {isActive && (
           <>
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8">
-              <Phone className="w-3.5 h-3.5" />
-              Call Support
-            </Button>
-            <Button variant="default" size="sm" className="gap-1.5 text-xs h-8">
-              <Mail className="w-3.5 h-3.5" />
-              Email Support
-            </Button>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" asChild>
+  <a href={`tel:${phone}`}>
+    <Phone className="w-3.5 h-3.5" />
+    Call Support
+  </a>
+</Button>
+
+<Button variant="default" size="sm" className="gap-1.5 text-xs h-8" asChild>
+  <a href={`mailto:${email}`}>
+    <Mail className="w-3.5 h-3.5" />
+    Email Support
+  </a>
+</Button>
           </>
         )}
         <Button

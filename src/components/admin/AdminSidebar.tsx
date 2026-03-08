@@ -30,7 +30,7 @@ const mainNavItems = [
 
 const otherNavItems = [
   // { label: "Home", path: "/", icon: Grid2X2 },
-  { label: "Profile", path: "/admin/profile", icon: User },
+  // { label: "Profile", path: "/admin/profile", icon: User },
   // { label: "Settings", path: "/admin/settings", icon: Settings },
 ];
 
