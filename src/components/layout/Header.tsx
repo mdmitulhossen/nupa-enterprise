@@ -181,7 +181,7 @@ const Header = () => {
               ))}
               <div className="flex gap-2 px-4 pt-2">
                 <Button variant="default" size="sm" className="flex-1">
-                  Request a Quote
+                 <Link to="/request-quote">Request a Quote</Link>
                 </Button>
                 {
                   !user ? (
