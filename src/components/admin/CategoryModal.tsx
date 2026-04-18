@@ -5,8 +5,8 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { useCreateCategory, useUpdateCategory } from "@/services/categoryService";
+import { useUploadFile } from "@/services/uploadService";
 import { Category } from "@/types/category";
-import { useNavigate } from "react-router-dom";
 import CategoryForm from "./CategoryForm";
 
 interface CategoryModalProps {
@@ -17,20 +17,19 @@ interface CategoryModalProps {
 }
 
 const CategoryModal = ({ isOpen, onClose, category, mode }: CategoryModalProps) => {
-    const navigate = useNavigate();
     const createCategoryMutation = useCreateCategory();
     const updateCategoryMutation = useUpdateCategory();
+    const uploadFileMutation = useUploadFile();
 
-    const handleSubmit = async (name: string, image: File | null | string) => {
-        const payload: { name: string; image?: File | string } | FormData = { name ,image};
-        // if (image) {
-        //     const formData = new FormData();
-        //     formData.append("name", name);
-        //     formData.append("image", image);
-        //     payload = formData;
-        // }
+    const handleSubmit = async (name: string, image: File | null) => {
+        const payload: { name: string; image?: string } = { name };
 
         try {
+            if (image instanceof File) {
+                const uploadedImageUrl = await uploadFileMutation.mutateAsync(image);
+                payload.image = uploadedImageUrl;
+            }
+
             if (mode === "add") {
                 await createCategoryMutation.mutateAsync(payload);
             } else if (mode === "edit" && category) {
@@ -42,7 +41,9 @@ const CategoryModal = ({ isOpen, onClose, category, mode }: CategoryModalProps) 
         }
     };
 
-    const isPending = mode === "add" ? createCategoryMutation.isPending : updateCategoryMutation.isPending;
+    const isPending =
+        uploadFileMutation.isPending ||
+        (mode === "add" ? createCategoryMutation.isPending : updateCategoryMutation.isPending);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
