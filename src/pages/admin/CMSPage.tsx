@@ -6,12 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/lib/toast";
 import { CmsData, ContactInfo, Faq, SocialLink, useFetchCms, useUpdateCms } from "@/services/CMSService";
+import { useUploadFile } from "@/services/uploadService";
 import { useEffect, useState } from "react";
 import SunEditor from "suneditor-react";
 import "suneditor/dist/css/suneditor.min.css";
 
-export const SOCIAL_OPTIONS = [
+const SOCIAL_OPTIONS = [
   { name: "Facebook", key: "facebook" },
   { name: "Instagram", key: "instagram" },
   { name: "YouTube", key: "youtube" },
@@ -28,6 +30,7 @@ const emptyCms: CmsData = {
   faqs: [],
   contactInfo: { email: "", phone: "", address: "", businessHours: "" },
   socialLinks: [],
+  storageSolutions: [],
   privacyPolicy: "",
   termsOfService: "",
   refundPolicy: "",
@@ -38,23 +41,28 @@ const TABS = [
   { id: "policies", label: "Policies" },
   { id: "faqs", label: "FAQs" },
   { id: "social", label: "Social Links" },
+  { id: "storage", label: "Storage Solutions" },
 ];
 
 const CMSPage = () => {
-  const { data: cmsResp, isLoading } = useFetchCms(true);
+  const { data: cmsResp } = useFetchCms(true);
   const updateCms = useUpdateCms();
+  const uploadFileMutation = useUploadFile();
 
   const [form, setForm] = useState<CmsData>(emptyCms);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<string>(TABS[0].id);
+  const isBusy = saving || updateCms.isPending || uploadFileMutation.isPending;
 
   useEffect(() => {
     if (cmsResp?.data) {
       const d = cmsResp.data;
+      const storageSolutions = Array.from({ length: 3 }, (_, index) => d.storageSolutions?.[index] ?? "");
       setForm({
         faqs: d.faqs ?? [],
         contactInfo: d.contactInfo ?? emptyCms.contactInfo,
         socialLinks: d.socialLinks ?? [],
+        storageSolutions,
         privacyPolicy: d.privacyPolicy ?? "",
         termsOfService: d.termsOfService ?? "",
         refundPolicy: d.refundPolicy ?? "",
@@ -64,6 +72,31 @@ const CMSPage = () => {
   }, [cmsResp]);
 
   const setField = (k: keyof CmsData, v: any) => setForm((s) => ({ ...s, [k]: v }));
+
+  const updateStorageSolution = (index: number, value: string) =>
+    setForm((s) => {
+      const storageSolutions = [...(s.storageSolutions ?? Array.from({ length: 3 }, () => ""))];
+      storageSolutions[index] = value;
+      return { ...s, storageSolutions };
+    });
+
+  const removeStorageSolution = (index: number) =>
+    setForm((s) => {
+      const storageSolutions = [...(s.storageSolutions ?? Array.from({ length: 3 }, () => ""))];
+      storageSolutions[index] = "";
+      return { ...s, storageSolutions };
+    });
+
+  const handleStorageImageUpload = async (index: number, file: File | null) => {
+    if (!file) return;
+
+    try {
+      const uploadedImageUrl = await uploadFileMutation.mutateAsync(file);
+      updateStorageSolution(index, uploadedImageUrl);
+    } catch {
+      toast.error("Failed to upload storage solution image");
+    }
+  };
 
   const updateFaq = (index: number, patch: Partial<Faq>) =>
     setForm((s) => {
@@ -94,12 +127,19 @@ const CMSPage = () => {
     setForm((s) => ({ ...s, contactInfo: { ...(s.contactInfo ?? {}), ...patch } }));
 
   const handleSave = async () => {
+    const storageSolutions = Array.from({ length: 3 }, (_, index) => form.storageSolutions?.[index] ?? "");
+    // if (storageSolutions.some((url) => !url.trim())) {
+    //   toast.error("Please upload all 3 storage solution images before saving.");
+    //   return;
+    // }
+
     setSaving(true);
     try {
       const payload: Partial<CmsData> = {
         faqs: form.faqs ?? [],
         contactInfo: form.contactInfo ?? {},
         socialLinks: form.socialLinks ?? [],
+        storageSolutions,
         privacyPolicy: form.privacyPolicy ?? "",
         termsOfService: form.termsOfService ?? "",
         refundPolicy: form.refundPolicy ?? "",
@@ -116,8 +156,8 @@ const CMSPage = () => {
         <div className="container mx-auto flex items-center justify-between gap-4">
           <PageHeader title="CMS" subtitle="Manage site content, policies, FAQs and social links" />
           <div className="flex items-center gap-2">
-            <Button onClick={handleSave} disabled={saving || updateCms.isPending}>
-              {saving || updateCms.isPending ? "Saving..." : "Save CMS"}
+            <Button onClick={handleSave} disabled={isBusy}>
+              {isBusy ? "Saving..." : "Save CMS"}
             </Button>
           </div>
         </div>
@@ -264,6 +304,63 @@ const CMSPage = () => {
                   </div>
                 ))}
                 {(form.socialLinks ?? []).length === 0 && <div className="text-sm text-muted-foreground">No social links yet.</div>}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "storage" && (
+            <div className="bg-background rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold">Storage Solutions</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Upload exactly 3 images. Each file is uploaded and saved as a URL array.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {Array.from({ length: 3 }, (_, index) => {
+                  const imageUrl = form.storageSolutions?.[index] ?? "";
+
+                  return (
+                    <div key={index} className="border border-border rounded-xl p-3 space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <Label className="font-medium">Image {index + 1}</Label>
+                        <span className="text-xs text-muted-foreground">Required</span>
+                      </div>
+
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        className="cursor-pointer"
+                        onChange={(e) => handleStorageImageUpload(index, e.target.files?.[0] || null)}
+                        disabled={uploadFileMutation.isPending}
+                      />
+
+                      {imageUrl ? (
+                        <div className="relative aspect-[4/3] rounded-lg overflow-hidden border border-border">
+                          <img
+                            src={imageUrl}
+                            alt={`Storage solution ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeStorageSolution(index)}
+                            className="absolute top-2 right-2 bg-destructive text-white rounded-full w-6 h-6 flex items-center justify-center"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="aspect-[4/3] rounded-lg border border-dashed border-border flex items-center justify-center text-sm text-muted-foreground bg-muted/20">
+                          No image uploaded
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

@@ -30,6 +30,7 @@ export interface CmsData {
   faqs?: Faq[];
   contactInfo?: ContactInfo;
   socialLinks?: SocialLink[];
+  storageSolutions?: string[];
   privacyPolicy?: string;
   termsOfService?: string;
   refundPolicy?: string;

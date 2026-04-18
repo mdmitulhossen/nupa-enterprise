@@ -25,7 +25,7 @@ const Products = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedAvailability, setSelectedAvailability] = useState<string>('');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 300000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 99999999]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("default");
   const [currentPage, setCurrentPage] = useState(1);
@@ -121,7 +121,7 @@ const Products = () => {
     setSelectedCategories([]);
     setSelectedIndustries([]);
     setSelectedAvailability("");
-    setPriceRange([0, 300000]);
+    setPriceRange([0, 99999999]);
     setSortBy("default");
     setCurrentPage(1);
   };
@@ -132,7 +132,7 @@ const Products = () => {
     selectedIndustries.length > 0 ||
     selectedAvailability ||
     priceRange[0] > 0 ||
-    priceRange[1] < 300000 ||
+    priceRange[1] < 99999999 ||
     sortBy !== "default";
 
   return (
@@ -178,7 +178,7 @@ const Products = () => {
             selectedIndustries={selectedIndustries}
             selectedAvailability={selectedAvailability}
             priceRange={priceRange}
-            maxPrice={300000}
+            maxPrice={99999999}
             onCategoryChange={setSelectedCategories}
             onIndustryChange={setSelectedIndustries}
             onAvailabilityChange={setSelectedAvailability}

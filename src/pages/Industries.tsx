@@ -4,7 +4,14 @@ import CTASection from "@/components/shared/CTASection";
 import IndustryCard from "@/components/shared/IndustryCard";
 import PageBanner from "@/components/shared/PageBanner";
 import { Badge } from "@/components/ui/badge";
+import { useFetchCms } from "@/services/CMSService";
 import { useFetchIndustries } from "@/services/industryService";
+
+const defaultStorageSolutionImages = [
+  "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=600&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&h=400&fit=crop",
+];
 
 const storageSolutions = [
   {
@@ -12,7 +19,7 @@ const storageSolutions = [
     description: "Nupa Enterprise offers high-quality storage shelves and racks suitable for factories, workshops, and commercial storage spaces. Our industrial shelving systems are built for strength, flexibility, and safe storage of goods and materials.",
     features: ["Boltless Shelving", "Medium Duty Storage Shelves", "Heavy Duty Industrial Shelves", "Modular Storage Systems"],
     bestFor: ["Factories", "Workshops", "Commercial Storage", "Book Stores"],
-    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=400&fit=crop",
+    image: defaultStorageSolutionImages[0],
     reverse: false,
   },
   {
@@ -20,7 +27,7 @@ const storageSolutions = [
     description: "Our supershop shelving systems are designed to improve product display, stock organization, and store efficiency. Nupa Enterprise supplies durable and customizable shelving solutions for supershops, grocery stores, and retail chains across Bangladesh.",
     features: ["Gondola Shelving", "Wall-Mounted Retail Shelves", "End Cap Displays", "Promotional Display Racks"],
     bestFor: ["Supershops", "Grocery Stores", "Retail Chains", "Showrooms"],
-    image: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=600&h=400&fit=crop",
+    image: defaultStorageSolutionImages[1],
     reverse: true,
   },
   {
@@ -28,7 +35,7 @@ const storageSolutions = [
     description: "Nupa Enterprise supplies high-quality warehouse racking systems designed for heavy loads, efficient inventory management, and long-term industrial use. Our warehouse racks are ideal for logistics centers, distribution hubs, and large storage facilities that require safe and organized storage solutions.",
     features: ["Heavy-Duty Pallet Racks", "Selective Racking Systems", "Long Span Storage Racks", "Custom Warehouse Racks"],
     bestFor: ["Warehouses & Logistics Centers", "Distribution Facilities", "Manufacturing Units"],
-    image: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&h=400&fit=crop",
+    image: defaultStorageSolutionImages[2],
     reverse: false,
   },
 ];
@@ -41,7 +48,19 @@ const industries = [
 ];
 
 const Industries = () => {
+  const { data: cmsResp } = useFetchCms(true);
   const { data: industriesData } = useFetchIndustries({ limit: 100 });
+  const cmsStorageImages = Array.isArray(cmsResp?.data?.storageSolutions)
+    ? cmsResp.data.storageSolutions
+    : [];
+
+  const resolveStorageImage = (index: number) => cmsStorageImages[index]?.trim() || defaultStorageSolutionImages[index];
+
+  const storageSolutionsWithCmsImages = storageSolutions.map((solution, index) => ({
+    ...solution,
+    image: resolveStorageImage(index),
+  }));
+
   const industriesListData = industriesData?.data && industriesData?.data.length > 0 ? industriesData?.data : industries;
   const shouldShowIndustries = industriesData?.data && industriesData?.data.length > 0;
   return (
@@ -65,7 +84,7 @@ const Industries = () => {
 
           {/* Storage Solutions */}
           <div className="space-y-16">
-            {storageSolutions.map((solution, index) => (
+            {storageSolutionsWithCmsImages.map((solution, index) => (
               <div key={index} className={`grid grid-cols-1 lg:grid-cols-2 gap-8 items-center ${solution.reverse ? "lg:flex-row-reverse" : ""}`}>
                 <div className={solution.reverse ? "lg:order-2" : ""}>
                   <div className="aspect-[4/3] rounded-xl overflow-hidden">
