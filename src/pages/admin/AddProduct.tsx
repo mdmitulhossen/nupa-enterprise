@@ -28,6 +28,7 @@ import {
   useFetchProduct,
   useUpdateProduct,
 } from "@/services/productService";
+import { useUploadFile } from "@/services/uploadService";
 import {
   CreateProductPayload,
   ProductStatus,
@@ -94,6 +95,8 @@ const AddProduct = () => {
   const { data: industriesData } = useFetchIndustries({ limit: 100 });
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
+  const uploadMainImageMutation = useUploadFile();
+  const uploadGalleryImageMutation = useUploadFile();
 
   const categories = categoriesData?.data || [];
   const industries = industriesData?.data || [];
@@ -219,6 +222,36 @@ const AddProduct = () => {
     }
   };
 
+  const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0] || null;
+    if (!selectedFile) return;
+
+    try {
+      const uploadedImageUrl = await uploadMainImageMutation.mutateAsync(selectedFile);
+      setMainImageUrl(uploadedImageUrl);
+    } finally {
+      e.target.value = "";
+    }
+  };
+
+  const handleGalleryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files ? Array.from(e.target.files) : [];
+    if (selectedFiles.length === 0) return;
+
+    try {
+      const uploadedUrls: string[] = [];
+
+      for (const file of selectedFiles) {
+        const uploadedImageUrl = await uploadGalleryImageMutation.mutateAsync(file);
+        uploadedUrls.push(uploadedImageUrl);
+      }
+
+      setGalleryImages((prev) => [...prev, ...uploadedUrls]);
+    } finally {
+      e.target.value = "";
+    }
+  };
+
   const removeGalleryImage = (index: number) => {
     setGalleryImages(galleryImages.filter((_, i) => i !== index));
   };
@@ -233,7 +266,10 @@ const AddProduct = () => {
       ? `৳${Math.min(...prices).toLocaleString()} – ৳${Math.max(...prices).toLocaleString()}`
       : "N/A";
 
-  const isSubmitting = createProduct.isPending || updateProduct.isPending;
+  const isImageUploading =
+    uploadMainImageMutation.isPending || uploadGalleryImageMutation.isPending;
+
+  const isSubmitting = createProduct.isPending || updateProduct.isPending || isImageUploading;
 
   return (
     <AdminLayout>
@@ -392,16 +428,25 @@ const AddProduct = () => {
               <div className="space-y-6">
                 {/* Main Image */}
                 <div>
-                  <Label htmlFor="mainImageUrl">Main Product Image URL</Label>
+                  <Label htmlFor="mainImageUrl">Main Product Image (URL or File Upload)</Label>
                   <p className="text-xs text-muted-foreground mt-0.5 mb-2">
                     Recommended: 800×800px, PNG or JPG
                   </p>
-                  <Input
-                    id="mainImageUrl"
-                    placeholder="https://example.com/image.jpg"
-                    value={mainImageUrl}
-                    onChange={(e) => setMainImageUrl(e.target.value)}
-                  />
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <Input
+                      id="mainImageUrl"
+                      placeholder="https://example.com/image.jpg"
+                      value={mainImageUrl}
+                      onChange={(e) => setMainImageUrl(e.target.value)}
+                    />
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      className="cursor-pointer"
+                      onChange={handleMainImageUpload}
+                      disabled={uploadMainImageMutation.isPending}
+                    />
+                  </div>
                   {mainImageUrl && (
                     <div className="mt-3 relative w-24 h-24">
                       <img
@@ -427,18 +472,28 @@ const AddProduct = () => {
                 <div>
                   <Label>Gallery Images</Label>
                   <p className="text-xs text-muted-foreground mt-0.5 mb-2">
-                    Recommended: 800×800px, PNG or JPG — Add image URLs one by one
+                    Recommended: 800×800px, PNG or JPG — Add URL one by one or upload files
                   </p>
-                  <div className="flex gap-2">
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://example.com/gallery-image.jpg"
+                        value={galleryInputUrl}
+                        onChange={(e) => setGalleryInputUrl(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addGalleryImage())}
+                      />
+                      <Button type="button" variant="outline" onClick={addGalleryImage}>
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
                     <Input
-                      placeholder="https://example.com/gallery-image.jpg"
-                      value={galleryInputUrl}
-                      onChange={(e) => setGalleryInputUrl(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addGalleryImage())}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="cursor-pointer"
+                      onChange={handleGalleryImageUpload}
+                      disabled={uploadGalleryImageMutation.isPending}
                     />
-                    <Button type="button" variant="outline" onClick={addGalleryImage}>
-                      <Plus className="w-4 h-4" />
-                    </Button>
                   </div>
                   {galleryImages.length > 0 && (
                     <div className="flex flex-wrap gap-3 mt-3">
