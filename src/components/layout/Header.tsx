@@ -1,17 +1,25 @@
 import logo from "@/assets/logo.svg";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import useLogout from "@/hooks/useLogout";
+import { useFetchCategories } from "@/services/categoryService";
+import { useFetchIndustries } from "@/services/industryService";
 import { useCartStore } from "@/store/cartStore";
 import { useUserStore } from "@/store/userStore";
-import { Menu, Search, ShoppingCart, X } from "lucide-react";
+import { ChevronDown, Menu, Search, ShoppingCart, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 const navLinks = [
   { label: "HOME", path: "/" },
-  { label: "PRODUCTS", path: "/products" },
   { label: "TESTIMONIALS", path: "/testimonials" },
-  { label: "INDUSTRIES", path: "/industries" },
   { label: "ABOUT US", path: "/about" },
   { label: "CONTACT US", path: "/contact" },
 ];
@@ -24,6 +32,8 @@ const Header = () => {
   const profileRef = useRef<HTMLDivElement | null>(null);
   const { totalItems } = useCartStore();
   const cartCount = totalItems();
+  const { data: categoriesData } = useFetchCategories({ limit: 100 });
+  const { data: industriesData } = useFetchIndustries({ limit: 100 });
 
   const logout = useLogout();
 
@@ -45,6 +55,24 @@ const Header = () => {
     ? `${(user.name || "").charAt(0) || ""}`.toUpperCase()
     : "";
 
+  const categories = categoriesData?.data || [];
+  const industries = industriesData?.data || [];
+  const isProductsActive = location.pathname === "/products";
+  const isIndustriesActive = location.pathname === "/industries";
+
+  const navLinkClass = (path: string) =>
+    `text-sm font-medium transition-colors hover:text-primary ${
+      location.pathname === path ? "text-primary" : "text-foreground"
+    }`;
+
+  const buildProductsUrl = (params: Record<string, string>) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) searchParams.set(key, value);
+    });
+    return `/products${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+  };
+
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -56,17 +84,62 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  location.pathname === link.path ? "text-primary" : "text-foreground"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            <Link to="/" className={navLinkClass("/")}>HOME</Link>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={`inline-flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary ${
+                    isProductsActive ? "text-primary" : "text-foreground"
+                  }`}
+                >
+                  PRODUCTS <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64 max-h-80 overflow-y-auto">
+                <DropdownMenuLabel>Categories</DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <Link to="/products">All Products</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {categories.map((category) => (
+                  <DropdownMenuItem key={category.id} asChild>
+                    <Link to={buildProductsUrl({ cat: category.id })}>{category.name}</Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Link to="/testimonials" className={navLinkClass("/testimonials")}>TESTIMONIALS</Link>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={`inline-flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary ${
+                    isIndustriesActive ? "text-primary" : "text-foreground"
+                  }`}
+                >
+                  INDUSTRIES <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64 max-h-80 overflow-y-auto">
+                <DropdownMenuLabel>Industries</DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <Link to="/industries">All Industries</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {industries.map((industry) => (
+                  <DropdownMenuItem key={industry.id} asChild>
+                    <Link to={buildProductsUrl({ industry: industry.id })}>{industry.name}</Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Link to="/about" className={navLinkClass("/about")}>ABOUT US</Link>
+            <Link to="/contact" className={navLinkClass("/contact")}>CONTACT US</Link>
           </nav>
 
           {/* Right Actions */}
@@ -167,7 +240,7 @@ const Header = () => {
         {isMenuOpen && (
           <nav className="lg:hidden py-4 border-t border-border">
             <div className="flex flex-col gap-2">
-              {navLinks.map((link) => (
+              {navLinks?.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}

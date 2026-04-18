@@ -75,6 +75,7 @@ const Products = () => {
       setDebouncedFilters({
         page: currentPage,
         limit: 12,
+        isActive: true,
         searchTerm:  searchQuery || undefined,
         categoryId:  selectedCategories.length ? selectedCategories : undefined,
         industryId:  selectedIndustries.length  ? selectedIndustries  : undefined,
