@@ -15,7 +15,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useUserStore } from "@/store/userStore";
 import { ChevronDown, Menu, Search, ShoppingCart, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const navLinks = [
   { label: "HOME", path: "/" },
@@ -28,6 +28,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useUserStore();
   const profileRef = useRef<HTMLDivElement | null>(null);
   const { totalItems } = useCartStore();
@@ -73,6 +74,10 @@ const Header = () => {
     return `/products${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
   };
 
+  const goToProducts = (params: Record<string, string> = {}) => {
+    navigate(buildProductsUrl(params));
+  };
+
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -98,14 +103,17 @@ const Header = () => {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-64 max-h-80 overflow-y-auto">
-                <DropdownMenuLabel>Categories</DropdownMenuLabel>
-                <DropdownMenuItem asChild>
-                  <Link to="/products">All Products</Link>
+                <DropdownMenuItem onSelect={() => goToProducts()}>
+                  All Products
                 </DropdownMenuItem>
+                <DropdownMenuLabel>Categories</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {categories.map((category) => (
-                  <DropdownMenuItem key={category.id} asChild>
-                    <Link to={buildProductsUrl({ cat: category.id })}>{category.name}</Link>
+                  <DropdownMenuItem
+                    key={category.id}
+                    onSelect={() => goToProducts({ cat: category.id })}
+                  >
+                    {category.name}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -124,15 +132,18 @@ const Header = () => {
                   INDUSTRIES <ChevronDown className="w-4 h-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64 max-h-80 overflow-y-auto">
-                <DropdownMenuLabel>Industries</DropdownMenuLabel>
-                <DropdownMenuItem asChild>
-                  <Link to="/industries">All Industries</Link>
+              <DropdownMenuContent align="start" className="w-64 max-h-80 overflow-y-auto">            
+                <DropdownMenuItem onSelect={() => navigate("/industries")}>
+                  All Industries
                 </DropdownMenuItem>
+                 <DropdownMenuLabel>Industries</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {industries.map((industry) => (
-                  <DropdownMenuItem key={industry.id} asChild>
-                    <Link to={buildProductsUrl({ industry: industry.id })}>{industry.name}</Link>
+                  <DropdownMenuItem
+                    key={industry.id}
+                    onSelect={() => goToProducts({ industry: industry.id })}
+                  >
+                    {industry.name}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>

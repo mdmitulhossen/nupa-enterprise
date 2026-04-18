@@ -39,7 +39,7 @@ const Products = () => {
   const { data: industriesData } = useFetchIndustries();
   const { data: searchableData } = useFetchSearchAbleProducts();
 
-  // ── 1. seed state from URL (runs once on mount + if the user uses back/forward) ──
+  // ── 1. seed state from URL (runs on mount and whenever the query string changes) ──
   useEffect(() => {
     const q   = searchParams.get("searchTerm") ?? "";
     const cat = searchParams.get("cat") ?? "";
@@ -49,7 +49,7 @@ const Products = () => {
 
     // mark as ready so effect #2 can start writing
     initialised.current = true;
-  }, []); // intentionally only on mount
+  }, [searchParams]);
 
   // ── 2. keep URL in sync whenever filters change (skips the very first render) ──
   useEffect(() => {
@@ -58,9 +58,10 @@ const Products = () => {
     const params: Record<string, string> = {};
     if (searchQuery)              params.searchTerm = searchQuery;
     if (selectedCategories.length) params.cat       = selectedCategories.join(",");
+    if (selectedIndustries.length)  params.industry  = selectedIndustries.join(",");
 
     setSearchParams(params, { replace: true });
-  }, [searchQuery, selectedCategories]);
+  }, [searchQuery, selectedCategories, selectedIndustries]);
 
 
 
