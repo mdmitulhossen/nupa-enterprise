@@ -1,9 +1,10 @@
 import MainLayout from "@/components/layout/MainLayout";
-import PageBanner from "@/components/shared/PageBanner";
 import Breadcrumb from "@/components/shared/Breadcrumb";
-import IndustryCard from "@/components/shared/IndustryCard";
 import CTASection from "@/components/shared/CTASection";
+import IndustryCard from "@/components/shared/IndustryCard";
+import PageBanner from "@/components/shared/PageBanner";
 import { Badge } from "@/components/ui/badge";
+import { useFetchIndustries } from "@/services/industryService";
 
 const storageSolutions = [
   {
@@ -40,6 +41,9 @@ const industries = [
 ];
 
 const Industries = () => {
+  const { data: industriesData } = useFetchIndustries({ limit: 100 });
+  const industriesListData = industriesData?.data && industriesData?.data.length > 0 ? industriesData?.data : industries;
+  const shouldShowIndustries = industriesData?.data && industriesData?.data.length > 0;
   return (
     <MainLayout>
       <PageBanner 
@@ -95,20 +99,22 @@ const Industries = () => {
       </section>
 
       {/* Industries We Serve */}
-      <section className="py-12 lg:py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">Industries We Serve</h2>
-          <p className="text-sm text-muted-foreground mb-2">Storage Solutions Designed for Real Business Needs</p>
-          <p className="text-muted-foreground max-w-3xl mb-12">
-            Our industrial shelving and storage rack systems are trusted by businesses across multiple industries where safety, organization, and efficiency matter.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {industries.map((industry, index) => (
-              <IndustryCard key={index} {...industry} />
-            ))}
+      {shouldShowIndustries && (
+        <section className="py-12 lg:py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">Industries We Serve</h2>
+            <p className="text-sm text-muted-foreground mb-2">Storage Solutions Designed for Real Business Needs</p>
+            <p className="text-muted-foreground max-w-3xl mb-12">
+              Our industrial shelving and storage rack systems are trusted by businesses across multiple industries where safety, organization, and efficiency matter.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {industriesListData.map((industry, index) => (
+                <IndustryCard key={index} {...industry} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <CTASection />
     </MainLayout>

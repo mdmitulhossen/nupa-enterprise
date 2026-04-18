@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 // import { demoProducts } from "@/data/products";
 import { useTitle } from '@/hooks/useTitle';
 import { useFetchCategories } from "@/services/categoryService";
+import { useFetchIndustries } from "@/services/industryService";
 import { useFetchProducts } from "@/services/productService";
 import { useFetchRatings } from "@/services/ratingService";
 import { Category } from "@/types/category";
@@ -49,12 +50,12 @@ const Home = () => {
   const [homeSearch, setHomeSearch] = useState("");
   const [homeCat, setHomeCat] = useState("");
 
-   const { data: cats} = useFetchCategories({ limit: 100 });
-     const { data: productsData } = useFetchProducts({ limit: 6, isFeature: true });
-
-   const { data: ratingsResponse } = useFetchRatings({
-             isFeatured:true
-         });
+   const { data: cats } = useFetchCategories({ limit: 100 });
+  const { data: industriesData } = useFetchIndustries({ limit: 100 });
+  const { data: productsData } = useFetchProducts({ limit: 6, isFeature: true });
+  const { data: ratingsResponse } = useFetchRatings({
+    isFeatured: true
+  });
 
 
   const submitSearch = () => {
@@ -68,7 +69,9 @@ const Home = () => {
     if (e.key === "Enter") submitSearch();
   };
 
-  const categoryData = cats?.data ? cats?.data : categories
+  const categoryData = cats?.data ? cats?.data : categories;
+  const industriesListData = industriesData?.data && industriesData?.data.length > 0 ? industriesData?.data : industries;
+  const shouldShowIndustries = industriesData?.data && industriesData?.data.length > 0;
 
   return (
     <MainLayout>
@@ -296,28 +299,30 @@ const Home = () => {
       </section>
 
       {/* Industries We Serve Grid */}
-      <section className="py-16 lg:py-12 bg-background">
-        <div className="container mx-auto px-4">
-          <SectionHeader
-            title="Industries We Serve"
-            subtitle="We provide customized shelving and storage solutions for various industry verticals."
-          />
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {industries.map((industry, index) => (
-              <div key={index} className="group relative rounded-xl overflow-hidden aspect-[4/3]">
-                <img
-                  src={industry.image}
-                  alt={industry.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-transparent flex items-end p-4">
-                  <p className="text-background font-medium text-sm">{industry.name}</p>
+      {shouldShowIndustries && (
+        <section className="py-16 lg:py-12 bg-background">
+          <div className="container mx-auto px-4">
+            <SectionHeader
+              title="Industries We Serve"
+              subtitle="We provide customized shelving and storage solutions for various industry verticals."
+            />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {industriesListData.map((industry, index) => (
+                <div key={index} className="group relative rounded-xl overflow-hidden aspect-[4/3]">
+                  <img
+                    src={industry.image}
+                    alt={industry.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-transparent flex items-end p-4">
+                    <p className="text-background font-medium text-sm">{industry.name}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Testimonials */}
       {

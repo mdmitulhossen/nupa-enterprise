@@ -5,6 +5,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { useCreateIndustry, useUpdateIndustry } from "@/services/industryService";
+import { useUploadFile } from "@/services/uploadService";
 import { Industry } from "@/types/industry";
 import IndustryForm from "./IndustryForm";
 
@@ -18,17 +19,21 @@ interface IndustryModalProps {
 const IndustryModal = ({ isOpen, onClose, industry, mode }: IndustryModalProps) => {
     const createIndustryMutation = useCreateIndustry();
     const updateIndustryMutation = useUpdateIndustry();
+    const uploadFileMutation = useUploadFile();
 
-    const handleSubmit = async (name: string, image: File | null) => {
-        let payload: { name: string; image?: File } | FormData = { name };
-        if (image) {
-            const formData = new FormData();
-            formData.append("name", name);
-            formData.append("image", image);
-            payload = formData;
+    const handleSubmit = async (name: string, details: string, image: File | null) => {
+        const payload: { name: string; details?: string; image?: string } = { name };
+        
+        if (details) {
+            payload.details = details;
         }
 
         try {
+            if (image instanceof File) {
+                const uploadedImageUrl = await uploadFileMutation.mutateAsync(image);
+                payload.image = uploadedImageUrl;
+            }
+
             if (mode === "add") {
                 await createIndustryMutation.mutateAsync(payload);
             } else if (mode === "edit" && industry) {
@@ -40,7 +45,9 @@ const IndustryModal = ({ isOpen, onClose, industry, mode }: IndustryModalProps) 
         }
     };
 
-    const isPending = mode === "add" ? createIndustryMutation.isPending : updateIndustryMutation.isPending;
+    const isPending =
+        uploadFileMutation.isPending ||
+        (mode === "add" ? createIndustryMutation.isPending : updateIndustryMutation.isPending);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -53,6 +60,7 @@ const IndustryModal = ({ isOpen, onClose, industry, mode }: IndustryModalProps) 
                 <IndustryForm
                     initialName={industry?.name || ""}
                     initialImage={industry?.image}
+                    initialDetails={industry?.details || ""}
                     onSubmit={handleSubmit}
                     isPending={isPending}
                     submitLabel={mode === "add" ? "Create Industry" : "Update Industry"}

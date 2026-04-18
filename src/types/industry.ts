@@ -2,6 +2,7 @@ export interface Industry {
     id: string;
     name: string;
     image?: string;
+    details?: string;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -34,4 +35,5 @@ export interface IndustryListParams {
 export interface CreateIndustryPayload {
     name: string;
     image?: string | File;
+    details?: string;
 }
